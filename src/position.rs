@@ -2,8 +2,8 @@
 
 /// A position in a 2-dimensional grid.
 ///
-/// The `i` and `j` coordinates as signed integers and are convient for dealing with movements
-/// around `0`, which can result in negative coordinates.
+/// The `i` and `j` coordinates are signed integers, making it easier to deal with movements around
+/// `0`, which can result in negative coordinates.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Position {
     /// Row index.
