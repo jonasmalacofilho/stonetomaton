@@ -293,8 +293,12 @@ mod tests {
     fn dont_regress_with_challenge_input() {
         const INPUT: &str = include_str!("../input.txt");
         const GOLDEN_LENGTH: usize = 220;
+        const GOLDEN_OUTPUT: &str = "D U D U D U D U D U D U R R R R R R R R R R R R R R R R R R D D D D D D R D D D R R L D D D D D U D R D R D D R R D D D D L R D D R U R U U D R R D L R R R R D D R D R D R D D U D L U R R R R D R D R R U D L R R D U U D U D R R D R R D D U D R D D L R R R D D R U D R L R R D U R D D R R D D R R R R R L R D D R L D R D D D D D D D R R U R R D D D R U D R R D D R R R R R L R U D R U R R R D R R R D D L L R R R R R R D D U D D D D D R D D";
 
         let path = find_path(INPUT);
         assert_eq!(path.len(), GOLDEN_LENGTH);
+
+        let output = path_to_string(&path);
+        assert_eq!(output, GOLDEN_OUTPUT);
     }
 }
