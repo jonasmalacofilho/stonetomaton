@@ -53,13 +53,14 @@
 //!
 //! [Jonas Malaco]: https://github.com/jonasmalacofilho
 
-mod movement;
+mod grid;
+mod position;
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 use std::fmt::{Display, Write};
 
-use movement::Movement::*;
-use movement::Position;
+use crate::grid::Grid;
+use crate::position::{Movement, Position};
 
 fn main() {
     const INPUT: &str = include_str!("../input.txt");
@@ -70,11 +71,14 @@ fn main() {
 fn run(input: &str) -> String {
     let (auto, Some(src), Some(dst)) = from_str(input) else { panic!("missing source and/or destination") };
 
+    let height = auto.grid.height();
+    let width = auto.grid.width();
+
     let mut generations = vec![auto];
 
     // See "Implementation notes" for why a simple FIFO queue is sufficient.
     let mut queue = VecDeque::new();
-    let mut parents = HashMap::new();
+    let mut parents: Vec<Grid<Option<Movement>>> = vec![Grid::from_default(height, width)];
 
     queue.push_back((0, src));
 
@@ -88,12 +92,14 @@ fn run(input: &str) -> String {
             let mut movements = vec![];
 
             while gen > 0 {
-                assert!(!generations[gen].alive(pos).unwrap());
-
-                let movement = parents[&(gen, pos)];
+                assert!(
+                    !generations[gen].green(pos).unwrap(),
+                    "path goes through green cell: {pos:?}, generation: {gen}"
+                );
+                let movement = parents[gen].get(pos.i, pos.j).unwrap().unwrap();
                 movements.push(movement);
-                gen -= 1;
                 pos = pos.previous(movement);
+                gen -= 1;
             }
 
             movements.reverse();
@@ -117,16 +123,20 @@ fn run(input: &str) -> String {
 
         if gen + 1 >= generations.len() {
             generations.push(generations[gen].next_generation());
+            parents.push(Grid::from_default(height, width));
         }
 
         let grid = &generations[gen + 1];
 
+        use crate::position::Movement::*;
+
         for movement in [Up, Down, Left, Right] {
             let next = pos.next(movement);
-            if let Some(false) = grid.alive(next) {
-                if !parents.contains_key(&(gen + 1, next)) {
+            if let Some(false) = grid.green(next) {
+                let parent = parents[gen + 1].get_mut(next.i, next.j).unwrap();
+                if parent.is_none() {
                     queue.push_back((gen + 1, next));
-                    parents.insert((gen + 1, next), movement);
+                    *parent = Some(movement);
                 }
             }
         }
@@ -139,61 +149,41 @@ fn run(input: &str) -> String {
 
 #[derive(Debug)]
 struct Automaton {
-    height: usize, // number of rows
-    width: usize,  // number of columns
-    grid: Vec<Vec<bool>>,
+    grid: Grid<bool>,
 }
 
 impl Automaton {
-    fn alive(&self, pos: Position) -> Option<bool> {
-        let i: usize = pos.i.try_into().ok()?;
-        let j: usize = pos.j.try_into().ok()?;
-        self.grid.get(i)?.get(j).copied()
+    fn green(&self, pos: Position) -> Option<bool> {
+        self.grid.get(pos.i, pos.j).copied()
     }
 
     fn next_generation(&self) -> Self {
-        let mut n = self.grid.clone();
+        let mut new_gen = Grid::from_default(self.grid.height(), self.grid.width());
 
-        for i in 0..self.height {
-            for j in 0..self.width {
-                let mut alive_neighbors = 0;
+        for (i, j, &green) in self.grid.cells() {
+            let green_neighbors = self
+                .grid
+                .moore_neighborhood(i, j)
+                .filter(|green| **green)
+                .count();
 
-                // Based on how the challenge is described and how the game in the previous
-                // challenge worked, neighbors are *not* counted as if the automaton wraps around
-                // the edges, which is perhaps a bit unusual (i.e. the automaton isn't toroidal).
-                for x in i.saturating_sub(1)..(i + 2).min(self.height) {
-                    for y in j.saturating_sub(1)..(j + 2).min(self.width) {
-                        if (x, y) != (i, j) && self.grid[x][y] {
-                            alive_neighbors += 1;
-                        }
-                    }
-                }
-
-                if self.grid[i][j] {
-                    n[i][j] = (4..6).contains(&alive_neighbors);
-                } else {
-                    n[i][j] = (2..5).contains(&alive_neighbors);
-                }
-            }
+            *new_gen.get_mut(i, j).unwrap() = (green && (4..6).contains(&green_neighbors))
+                || (!green && (2..5).contains(&green_neighbors));
         }
 
-        Automaton { grid: n, ..*self }
+        Automaton { grid: new_gen }
     }
 }
 
 impl Display for Automaton {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for row in &self.grid {
-            let mut first_column = true;
-            for cell in row {
-                if first_column {
-                    first_column = false;
-                } else {
-                    f.write_char(' ')?;
-                }
-                f.write_char(if *cell { '1' } else { '0' })?;
+        for (i, j, &green) in self.grid.cells() {
+            if j != 0 {
+                f.write_char(' ')?;
+            } else if i != 0 {
+                f.write_char('\n')?;
             }
-            f.write_char('\n')?;
+            f.write_char(if green { '1' } else { '0' })?;
         }
         Ok(())
     }
@@ -236,18 +226,9 @@ fn from_str(s: &str) -> (Automaton, Option<Position>, Option<Position>) {
         })
         .collect();
 
-    let height = grid.len();
-    let width = grid[0].len(); // The input is known to be well formed.
+    let grid = Grid::from_nested_vecs(grid);
 
-    (
-        Automaton {
-            height,
-            width,
-            grid,
-        },
-        src,
-        dst,
-    )
+    (Automaton { grid }, src, dst)
 }
 
 #[cfg(test)]
@@ -260,11 +241,11 @@ mod tests {
 0 0 0 0 0
 0 1 0 1 0
 0 0 1 0 0
-0 0 0 0 0
-";
+0 0 0 0 0";
+
         let (initial, _, _) = from_str(INPUT);
-        assert_eq!(initial.height, 4);
-        assert_eq!(initial.width, 5);
+        assert_eq!(initial.grid.height(), 4);
+        assert_eq!(initial.grid.width(), 5);
         assert_eq!(initial.to_string(), INPUT);
     }
 
@@ -273,13 +254,12 @@ mod tests {
         const INPUT: &str = "\
 1 1 1 0
 0 1 0 1
-0 1 1 0
-";
+0 1 1 0";
         const EXPECTED: &str = "\
 0 0 0 1
 1 1 0 0
-1 0 0 1
-";
+1 0 0 1";
+
         let (initial, _, _) = from_str(INPUT);
         let second = initial.next_generation();
         assert_eq!(second.to_string(), EXPECTED);
@@ -291,14 +271,13 @@ mod tests {
 3 0 0 1 0 0
 0 1 1 0 1 1
 0 0 1 1 0 0
-0 0 0 0 0 4
-";
+0 0 0 0 0 4";
+
         const GOLDEN: &str = "D U D U D D R R R D R L R R";
         assert_eq!(run(INPUT), GOLDEN);
     }
 
     #[test]
-    // #[ignore]
     fn dont_regress() {
         const INPUT: &str = include_str!("../input.txt");
         // const GOLDEN: &str = "D D R D R D D R R R D R R R R R R D R R R D D R L U R R R R L R D R D R D D D R D D R R D D R R L D L D R D D R D D R U D L D U R R D U R D R R R R R D R D R R U R D R D R D L R D R L D D D D L D D R R R R D U R R R U L D R D R D R D D L D R R R R R L U R U R R U R D D R R L D D D D D D L D D R D D D R D L R R R R R R R R D R L U D R D D U R U R L R L R R R D D R R R R R U R R U U R D D D R R R R R D L L D R R R R D D L R D D D D R D D";
