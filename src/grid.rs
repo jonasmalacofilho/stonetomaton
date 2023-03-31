@@ -174,7 +174,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn neighborhood_requires_cell_to_be_in_bounds() {
-        //    Grid
+        //   Grid
         // +-------+
         // | 0 1 2 |
         // | 3 4 5 |

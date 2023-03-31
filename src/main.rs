@@ -51,7 +51,7 @@
 //!
 //! - Run the unit tests: `cargo test`
 //! - Build and execute the program: `cargo run --release`
-//! - View this (internal) documentation: `cargo doc --open`
+//! - View this documentation in the browser: `cargo doc --open`
 //! - For more options, consult the Cargo documentation.
 //!
 //! ---
@@ -107,6 +107,7 @@ fn find_path(input: &str) -> Vec<Movement> {
 
                 let movement = history[gen].get(pos.i, pos.j).unwrap().unwrap();
                 path.push(movement);
+
                 pos = pos.previous(movement);
                 gen -= 1;
             }

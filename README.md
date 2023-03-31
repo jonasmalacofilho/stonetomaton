@@ -12,7 +12,7 @@ with (stable) Rust 1.68.1.
 
 - Run the unit tests: `cargo test`
 - Build and execute the program: `cargo run --release`
-- View the (internal) documentation: `cargo doc --open`
+- View the documentation in the browser: `cargo doc --open`
 - For more options, consult the Cargo documentation.
 
 ---
