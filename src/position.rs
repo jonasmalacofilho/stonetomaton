@@ -7,9 +7,9 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Position {
     /// Row index.
-    pub i: i8,
+    pub i: i16,
     /// Column index.
-    pub j: i8,
+    pub j: i16,
 }
 
 impl Position {
@@ -45,7 +45,7 @@ pub enum Movement {
 }
 
 impl Movement {
-    fn to_tuple(self) -> (i8, i8) {
+    fn to_tuple(self) -> (i16, i16) {
         // The origin is at the top left, and row indices grown down.
         match self {
             Movement::Up => (-1, 0),

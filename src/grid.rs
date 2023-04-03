@@ -6,8 +6,8 @@
 /// movements around `0`, which can result in negative coordinates.
 #[derive(Debug, Clone)]
 pub struct Grid<T> {
-    height: i8,
-    width: i8,
+    height: i16,
+    width: i16,
     raw: Vec<T>,
 }
 
@@ -15,7 +15,7 @@ impl<T> Grid<T> {
     /// Creates a grid from a 2-dimensional nested vecs.
     pub fn from_nested_vecs(vecs: Vec<Vec<T>>) -> Self {
         let (h, w) = (vecs.len(), vecs[0].len());
-        let (height, width): (i8, i8) = (h.try_into().unwrap(), w.try_into().unwrap());
+        let (height, width): (i16, i16) = (h.try_into().unwrap(), w.try_into().unwrap());
 
         let mut raw = Vec::with_capacity(h * w);
         for row in vecs {
@@ -26,41 +26,41 @@ impl<T> Grid<T> {
         Self { height, width, raw }
     }
 
-    pub fn height(&self) -> i8 {
+    pub fn height(&self) -> i16 {
         self.height
     }
 
-    pub fn width(&self) -> i8 {
+    pub fn width(&self) -> i16 {
         self.width
     }
 
     /// Returns a reference to the value in cell `(i, j)`, or `None` if `(i, j)` is not in bounds.
-    pub fn get(&self, i: i8, j: i8) -> Option<&T> {
+    pub fn get(&self, i: i16, j: i16) -> Option<&T> {
         self.raw.get(self.index(i, j)?)
     }
 
     /// Returns a mutable reference to the value in cell `(i, j)`, or `None` if `(i, j)` is not in
     /// bounds.
-    pub fn get_mut(&mut self, i: i8, j: i8) -> Option<&mut T> {
+    pub fn get_mut(&mut self, i: i16, j: i16) -> Option<&mut T> {
         let index = self.index(i, j)?;
         self.raw.get_mut(index)
     }
 
     /// Iterate through all cells in the grid.
-    pub fn cells(&self) -> impl Iterator<Item = (i8, i8, &T)> {
+    pub fn cells(&self) -> impl Iterator<Item = (i16, i16, &T)> {
         let w: usize = self.width as _;
 
         self.raw
             .iter()
             .enumerate()
-            .map(move |(index, value)| ((index / w) as i8, (index % w) as i8, value))
+            .map(move |(index, value)| ((index / w) as i16, (index % w) as i16, value))
     }
 
     /// Iterate through the values in the Moore neighborhood of cell `(i, j)`.
     ///
     /// The grid does *not* wrap around the edges, and `(i, j)` must point to a cell within the
     /// grid (in other words, it must in bounds).
-    pub fn moore_neighborhood(&self, i: i8, j: i8) -> impl Iterator<Item = &T> {
+    pub fn moore_neighborhood(&self, i: i16, j: i16) -> impl Iterator<Item = &T> {
         // TODO: return an empty iterator instead... without penalizing performance.
         assert!(self.index(i, j).is_some(), "`(i, j)` should be in bounds");
 
@@ -75,7 +75,7 @@ impl<T> Grid<T> {
         })
     }
 
-    fn index(&self, i: i8, j: i8) -> Option<usize> {
+    fn index(&self, i: i16, j: i16) -> Option<usize> {
         if !(0..self.height).contains(&i) || !(0..self.width).contains(&j) {
             return None;
         }
@@ -86,7 +86,7 @@ impl<T> Grid<T> {
 
 impl<T: Default + Clone> Grid<T> {
     /// Creates a grid of `height` and `width` with all values set to `<T as Default>::default()`.
-    pub fn new(height: i8, width: i8) -> Self {
+    pub fn new(height: i16, width: i16) -> Self {
         let (h, w): (usize, usize) = (height.try_into().unwrap(), width.try_into().unwrap());
         let raw = vec![Default::default(); h * w];
         Self { height, width, raw }
