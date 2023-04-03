@@ -82,20 +82,21 @@ fn main() {
 /// Reads the input and finds a path from  source to destination.
 // See "Implementation notes" in the top-level module documentation for more information.
 fn find_path(input: &str) -> Vec<Movement> {
-    let (initial_state, Some(src), Some(dst)) = parse(input) else {
-        panic!("missing source and/or destination")
-    };
+    let initial_state = parse(input);
+
     let height = initial_state.grid.height();
     let width = initial_state.grid.width();
+    let source = initial_state.source;
+    let destination = initial_state.destination;
 
     let mut automaton = vec![initial_state];
     let mut history = vec![Grid::<Option<Movement>>::new(height, width)];
     let mut to_visit = VecDeque::new();
 
-    to_visit.push_back((0, src));
+    to_visit.push_back((0, source));
 
     while let Some((gen, pos)) = to_visit.pop_front() {
-        if pos == dst {
+        if pos == destination {
             let (mut gen, mut pos) = (gen, pos);
             let mut path = vec![];
 
@@ -157,6 +158,8 @@ fn path_to_string(path: &[Movement]) -> String {
 #[derive(Debug)]
 struct Automaton {
     grid: Grid<bool>,
+    source: Position,
+    destination: Position,
 }
 
 impl Automaton {
@@ -178,7 +181,10 @@ impl Automaton {
                 || (!green && (2..=4).contains(&green_neighbors));
         }
 
-        Automaton { grid: new_gen }
+        Automaton {
+            grid: new_gen,
+            ..*self
+        }
     }
 }
 
@@ -197,9 +203,9 @@ impl Display for Automaton {
 }
 
 /// Parses the input.
-fn parse(s: &str) -> (Automaton, Option<Position>, Option<Position>) {
-    let mut src = None;
-    let mut dst = None;
+fn parse(s: &str) -> Automaton {
+    let mut source = None;
+    let mut destination = None;
 
     let grid: Vec<Vec<_>> = s
         .lines()
@@ -222,9 +228,9 @@ fn parse(s: &str) -> (Automaton, Option<Position>, Option<Position>) {
                     });
 
                     if cell == 3 {
-                        src = pos;
+                        source = pos;
                     } else if cell == 4 {
-                        dst = pos;
+                        destination = pos;
                     }
 
                     false
@@ -235,7 +241,11 @@ fn parse(s: &str) -> (Automaton, Option<Position>, Option<Position>) {
 
     let grid = Grid::from_nested_vecs(grid);
 
-    (Automaton { grid }, src, dst)
+    Automaton {
+        grid,
+        source: source.unwrap(),
+        destination: destination.unwrap(),
+    }
 }
 
 #[cfg(test)]
@@ -246,28 +256,30 @@ mod tests {
     fn parse_grid_and_display_back() {
         const INPUT: &str = "\
 0 0 0 0 0
-0 1 0 1 0
-0 0 1 0 0
+0 1 0 1 4
+3 0 1 0 0
 0 0 0 0 0";
 
-        let (initial, _, _) = parse(INPUT);
+        let initial = parse(INPUT);
         assert_eq!(initial.grid.height(), 4);
         assert_eq!(initial.grid.width(), 5);
-        assert_eq!(initial.to_string(), INPUT);
+        assert_eq!(initial.source, Position { i: 2, j: 0 });
+        assert_eq!(initial.destination, Position { i: 1, j: 4 });
+        assert_eq!(initial.to_string(), INPUT.replace(['3', '4'], "0"));
     }
 
     #[test]
     fn one_generation() {
         const INPUT: &str = "\
 1 1 1 0
-0 1 0 1
+3 1 4 1
 0 1 1 0";
         const EXPECTED: &str = "\
 0 0 0 1
 1 1 0 0
 1 0 0 1";
 
-        let (initial, _, _) = parse(INPUT);
+        let initial = parse(INPUT);
         let second = initial.next_generation();
         assert_eq!(second.to_string(), EXPECTED);
     }
