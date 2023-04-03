@@ -93,6 +93,13 @@ fn find_path(input: &str) -> Vec<Movement> {
     let source = initial_state.source;
     let destination = initial_state.destination;
 
+    // Potential optimizations:
+    // - only the next generation of the automaton is strickly necessary;
+    // - A* might find the shortest path sooner and, by changing `history` to be some sparse map,
+    // it might be possible to save quite a bit of storage;
+    // - instead of a queue, it's possible to just scan the current generation (but the queue size
+    // is bounded by `2 * R * C`).
+
     let mut automaton = vec![initial_state];
     let mut history = vec![Grid::<Option<Movement>>::new(height, width)];
     let mut to_visit = VecDeque::new();
