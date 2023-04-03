@@ -71,7 +71,7 @@ use crate::grid::Grid;
 use crate::position::Movement::{self, *};
 use crate::position::Position;
 
-const MAX_GENERATIONS: u32 = 100_000;
+const MAX_GENERATIONS: usize = 100_000;
 
 fn main() {
     let mut input = String::new();
@@ -101,7 +101,7 @@ fn find_path(input: &str) -> Vec<Movement> {
     // - instead of a queue, it's possible to just scan the current generation (but the queue size
     // is bounded by `2 * R * C`);
 
-    let mut history = HashMap::<(u32, Position), Movement>::new();
+    let mut history = vec![HashMap::<Position, Movement>::new()];
 
     for gen in 0.. {
         assert!(gen <= MAX_GENERATIONS);
@@ -111,12 +111,13 @@ fn find_path(input: &str) -> Vec<Movement> {
         }
 
         let next_generation = automaton.next_generation();
+        history.push(HashMap::new());
 
         for (i, j, &cell) in automaton.grid.cells() {
             let pos = Position { i, j };
 
             if cell
-                || (gen > 0 && history.get(&(gen, pos)).is_none())
+                || (gen > 0 && history[gen].get(&pos).is_none())
                 || (gen == 0 && Position { i, j } != source)
             {
                 continue;
@@ -135,7 +136,7 @@ fn find_path(input: &str) -> Vec<Movement> {
                 while gen > 0 {
                     // eprintln!("backward: {gen} {} {}", pos.i, pos.j);
 
-                    let movement = history[&(gen, pos)];
+                    let movement = history[gen][&pos];
                     path.push(movement);
 
                     pos = pos.previous(movement);
@@ -149,7 +150,7 @@ fn find_path(input: &str) -> Vec<Movement> {
             for movement in [Up, Down, Left, Right] {
                 let next = pos.next(movement);
                 if let Some(false) = next_generation.green(next) {
-                    history.entry((gen + 1, next)).or_insert(movement);
+                    history[gen + 1].entry(next).or_insert(movement);
                 }
             }
         }
