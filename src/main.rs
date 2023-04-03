@@ -65,6 +65,7 @@ mod position;
 
 use std::collections::VecDeque;
 use std::fmt::{Display, Write};
+use std::io::{stdin, Read};
 
 use crate::grid::Grid;
 use crate::position::Movement::{self, *};
@@ -73,8 +74,11 @@ use crate::position::Position;
 const MAX_GENERATIONS: usize = 100_000;
 
 fn main() {
-    const INPUT: &str = include_str!("../input.txt");
-    let path = find_path(INPUT);
+    let mut input = String::new();
+    stdin().read_to_string(&mut input).unwrap();
+
+    let path = find_path(&input);
+
     println!("{}", path_to_string(&path));
     eprintln!("{} movements", path.len());
 }
@@ -302,6 +306,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(debug_assertions, ignore)]
     fn dont_regress_with_challenge_input() {
         const INPUT: &str = include_str!("../input.txt");
         const GOLDEN_LENGTH: usize = 220;
