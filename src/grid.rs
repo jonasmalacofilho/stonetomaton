@@ -1,5 +1,7 @@
 //! A 2-dimensional grid.
 
+use std::iter;
+
 /// A 2-dimensional grid of `T` values.
 ///
 /// The heigh, width, and all coordinates are signed integers, making it easier to deal with
@@ -48,12 +50,20 @@ impl<T> Grid<T> {
 
     /// Iterate through all cells in the grid.
     pub fn cells(&self) -> impl Iterator<Item = (i16, i16, &T)> {
-        let w: usize = self.width as _;
-
-        self.raw
-            .iter()
-            .enumerate()
-            .map(move |(index, value)| ((index / w) as i16, (index % w) as i16, value))
+        let (mut i, mut j) = (0, 0);
+        iter::from_fn(move || {
+            if let Some(index) = self.index(i, j) {
+                let cur = (i, j, &self.raw[index]);
+                j += 1;
+                if j >= self.width {
+                    j = 0;
+                    i += 1;
+                }
+                Some(cur)
+            } else {
+                None
+            }
+        })
     }
 
     /// Iterate through the values in the Moore neighborhood of cell `(i, j)`.
