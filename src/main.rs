@@ -326,8 +326,19 @@ fn lives_lost(path: &[Movement], mut automaton: Automaton) -> usize {
 }
 
 #[cfg(test)]
-mod tests {
+mod main_tests {
+    use std::fs;
+
     use super::*;
+
+    fn validade_path_format(path: &str) {
+        for (gen, movement) in path.split(' ').enumerate() {
+            // Leave this here in case we need to debug a bug.
+            dbg!(gen, movement);
+
+            assert!(["D", "U", "R", "L"].contains(&movement));
+        }
+    }
 
     #[test]
     fn parse_grid_and_display_back() {
@@ -381,27 +392,46 @@ mod tests {
         validade_path_format(&path_to_string(&path));
     }
 
-    #[test]
-    fn dont_regress_level1_question2() {
-        const INPUT: &str = include_str!("../input.txt");
-        const GOLDEN_LENGTH: usize = 220;
-        // const GOLDEN_OUTPUT: &str = "D U D U D U D U D U D U R R R R R R R R R R R R R R R R R R D D D D D D R D D D R R L D D D D D U D R D R D D R R D D D D L R D D R U R U U D R R D L R R R R D D R D R D R D D U D L U R R R R D R D R R U D L R R D U U D U D R R D R R D D U D R D D L R R R D D R U D R L R R D U R D D R R D D R R R R R L R D D R L D R D D D D D D D R R U R R D D D R U D R R D D R R R R R L R U D R U R R R D R R R D D L L R R R R R R D D U D D D D D R D D";
+    mod dont_regress {
+        use super::*;
 
-        let automaton = parse(INPUT);
-        let path = find_path(automaton.clone());
+        mod level1 {
+            use super::*;
 
-        assert_eq!(lives_lost(&path, automaton), 0);
-        assert_eq!(path.len(), GOLDEN_LENGTH);
+            #[test]
+            fn question2() {
+                const GOLDEN_LENGTH: usize = 220;
+                // const GOLDEN_OUTPUT: &str = "D U D U D U D U D U D U R R R R R R R R R R R R R R R R R R D D D D D D R D D D R R L D D D D D U D R D R D D R R D D D D L R D D R U R U U D R R D L R R R R D D R D R D R D D U D L U R R R R D R D R R U D L R R D U U D U D R R D R R D D U D R D D L R R R D D R U D R L R R D U R D D R R D D R R R R R L R D D R L D R D D D D D D D R R U R R D D D R U D R R D D R R R R R L R U D R U R R R D R R R D D L L R R R R R R D D U D D D D D R D D";
 
-        validade_path_format(&path_to_string(&path));
-    }
+                let input = fs::read_to_string("input.txt").unwrap();
 
-    fn validade_path_format(path: &str) {
-        for (gen, movement) in path.split(' ').enumerate() {
-            // Leave this here in case we need to debug a bug.
-            dbg!(gen, movement);
+                let automaton = parse(&input);
+                let path = find_path(automaton.clone());
 
-            assert!(["D", "U", "R", "L"].contains(&movement));
+                assert_eq!(lives_lost(&path, automaton), 0);
+                assert_eq!(path.len(), GOLDEN_LENGTH);
+
+                validade_path_format(&path_to_string(&path));
+            }
+        }
+
+        mod level2 {
+            use super::*;
+
+            #[test]
+            #[ignore]
+            fn challenge1() {
+                const GOLDEN_LENGTH: usize = 6176;
+
+                let input = fs::read_to_string("input1.txt").unwrap();
+                let automaton = parse(&input);
+                let path = find_path(automaton.clone());
+
+                assert_eq!(lives_lost(&path, automaton), 0);
+                assert_eq!(path.len(), GOLDEN_LENGTH);
+
+                validade_path_format(&path_to_string(&path));
+            }
         }
     }
 }
