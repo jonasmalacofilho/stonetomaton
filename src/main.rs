@@ -63,9 +63,10 @@
 mod grid;
 mod position;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use std::env;
 use std::fmt::{Display, Write};
-use std::io::{stdin, Read};
+use std::io::{self, Read};
 
 use crate::grid::Grid;
 use crate::position::Movement::{self, *};
@@ -74,10 +75,17 @@ use crate::position::Position;
 const MAX_GENERATIONS: usize = 100_000;
 
 fn main() {
+    let mut args: HashSet<_> = env::args().skip(1).collect();
+
     let mut input = String::new();
     io::stdin().read_to_string(&mut input).unwrap();
 
     let mut automaton = parse(&input);
+    if args.remove("--immutable-endpoints") {
+        automaton.immutable_endpoints = true;
+    }
+
+    assert_eq!(args, HashSet::new());
 
     let path = find_path(automaton.clone());
 
