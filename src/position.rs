@@ -32,6 +32,10 @@ impl Position {
             j: self.j - inc.1,
         }
     }
+
+    pub fn distance(&self, other: &Position) -> u16 {
+        self.i.abs_diff(other.i) + self.j.abs_diff(other.j)
+    }
 }
 
 /// An individual movement of the agent.
