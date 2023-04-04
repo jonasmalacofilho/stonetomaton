@@ -75,19 +75,23 @@ const MAX_GENERATIONS: usize = 100_000;
 
 fn main() {
     let mut input = String::new();
-    stdin().read_to_string(&mut input).unwrap();
+    io::stdin().read_to_string(&mut input).unwrap();
 
-    let path = find_path(&input);
+    let mut automaton = parse(&input);
+
+    let path = find_path(automaton.clone());
 
     println!("{}", path_to_string(&path));
     eprintln!("{} movements", path.len());
+
+    let lives_lost = lives_lost(&path, automaton);
+    eprintln!("{} lives lost", lives_lost);
+    assert_eq!(lives_lost, 0);
 }
 
 /// Reads the input and finds a path from  source to destination.
 // See "Implementation notes" in the top-level module documentation for more information.
-fn find_path(input: &str) -> Vec<Movement> {
-    let mut automaton = parse(input);
-
+fn find_path(mut automaton: Automaton) -> Vec<Movement> {
     let source = automaton.source;
     let destination = automaton.destination;
 
@@ -103,11 +107,13 @@ fn find_path(input: &str) -> Vec<Movement> {
 
     let mut history = vec![HashMap::<Position, Movement>::new()];
 
+    let (mut maxi, mut maxj) = (0, 0);
+
     for gen in 0.. {
         assert!(gen <= MAX_GENERATIONS);
 
-        if gen % 100 == 0 {
-            dbg!(gen);
+        if gen > 0 && gen % 100 == 0 {
+            dbg!(gen, maxi, maxj);
         }
 
         let next_generation = automaton.next_generation();
@@ -122,6 +128,9 @@ fn find_path(input: &str) -> Vec<Movement> {
             {
                 continue;
             }
+
+            maxi = maxi.max(i);
+            maxj = maxj.max(i);
 
             // eprintln!("forward: {gen} {i} {j}");
             // dbg!(&history[gen]);
@@ -177,11 +186,13 @@ fn path_to_string(path: &[Movement]) -> String {
 }
 
 /// The automaton.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Automaton {
     grid: Grid<bool>,
     source: Position,
     destination: Position,
+
+    pub immutable_endpoints: bool,
 }
 
 impl Automaton {
@@ -192,12 +203,12 @@ impl Automaton {
     fn next_generation(&self) -> Self {
         let mut new_gen = Grid::new(self.grid.height(), self.grid.width());
 
-        // FIXME: (properly) in level 2 challenge 1 source and destination are immutable/white.
-
         for (i, j, &green) in self.grid.cells() {
-            // HACK: in level 2 challenge 1 source and destination are immutable/white.
-            #[cfg(not(debug_assertions))]
-            if (i, j) == (self.source.i, self.source.j) || (i, j) == (self.destination.i, self.destination.j) {
+            // In level 2 challenges the source and destination positions are immutably white.
+            if self.immutable_endpoints
+                && ((i, j) == (self.source.i, self.source.j)
+                    || (i, j) == (self.destination.i, self.destination.j))
+            {
                 continue;
             }
 
@@ -275,7 +286,34 @@ fn parse(s: &str) -> Automaton {
         grid,
         source: source.unwrap(),
         destination: destination.unwrap(),
+        immutable_endpoints: false,
     }
+}
+
+fn lives_lost(path: &[Movement], mut automaton: Automaton) -> usize {
+    let mut current = automaton.source;
+    let mut lost = 0;
+
+    for (gen, movement) in path.iter().enumerate() {
+        if automaton.green(current).unwrap() {
+            lost += 1;
+
+            // Leave this here in case we need to debug a bug.
+            // dbg!(lost, gen, movement, current);
+
+            // However: initial and final positions cannot be green.
+            assert_ne!(gen, 0);
+            assert_ne!(gen, path.len() - 1);
+        }
+
+        automaton = automaton.next_generation();
+        current = current.next(*movement);
+    }
+
+    // Check that the destination is actually correct.
+    assert_eq!(current, automaton.destination);
+
+    lost
 }
 
 #[cfg(test)]
@@ -322,28 +360,39 @@ mod tests {
 0 0 1 1 0 0
 0 0 0 0 0 4";
         const GOLDEN_LENGTH: usize = 14;
-        const GOLDEN_OUTPUT1: &str = "D U D U D D R R R D R L R R";
-        const GOLDEN_OUTPUT2: &str = "D U D U D D R R R R D L R R"; // FIXME: actually check!!
+        // const GOLDEN_OUTPUT1: &str = "D U D U D D R R R D R L R R";
+        // const GOLDEN_OUTPUT2: &str = "D U D U D D R R R R D L R R";
 
-        let path = find_path(INPUT);
+        let automaton = parse(INPUT);
+        let path = find_path(automaton.clone());
+
+        assert_eq!(lives_lost(&path, automaton), 0);
         assert_eq!(path.len(), GOLDEN_LENGTH);
 
-        let output = dbg!(path_to_string(&path));
-        // assert!(output == GOLDEN_OUTPUT1);
-        assert!(output == GOLDEN_OUTPUT1 || output == GOLDEN_OUTPUT2);
+        validade_path_format(&path_to_string(&path));
     }
 
     #[test]
-    #[cfg_attr(debug_assertions, ignore)]
-    fn dont_regress_with_challenge_input() {
+    fn dont_regress_level1_question2() {
         const INPUT: &str = include_str!("../input.txt");
         const GOLDEN_LENGTH: usize = 220;
-        const GOLDEN_OUTPUT: &str = "D U D U D U D U D U D U R R R R R R R R R R R R R R R R R R D D D D D D R D D D R R L D D D D D U D R D R D D R R D D D D L R D D R U R U U D R R D L R R R R D D R D R D R D D U D L U R R R R D R D R R U D L R R D U U D U D R R D R R D D U D R D D L R R R D D R U D R L R R D U R D D R R D D R R R R R L R D D R L D R D D D D D D D R R U R R D D D R U D R R D D R R R R R L R U D R U R R R D R R R D D L L R R R R R R D D U D D D D D R D D";
+        // const GOLDEN_OUTPUT: &str = "D U D U D U D U D U D U R R R R R R R R R R R R R R R R R R D D D D D D R D D D R R L D D D D D U D R D R D D R R D D D D L R D D R U R U U D R R D L R R R R D D R D R D R D D U D L U R R R R D R D R R U D L R R D U U D U D R R D R R D D U D R D D L R R R D D R U D R L R R D U R D D R R D D R R R R R L R D D R L D R D D D D D D D R R U R R D D D R U D R R D D R R R R R L R U D R U R R R D R R R D D L L R R R R R R D D U D D D D D R D D";
 
-        let path = find_path(INPUT);
+        let automaton = parse(INPUT);
+        let path = find_path(automaton.clone());
+
+        assert_eq!(lives_lost(&path, automaton), 0);
         assert_eq!(path.len(), GOLDEN_LENGTH);
 
-        let output = path_to_string(&path);
-        assert_eq!(output, GOLDEN_OUTPUT);
+        validade_path_format(&path_to_string(&path));
+    }
+
+    fn validade_path_format(path: &str) {
+        for (gen, movement) in path.split(' ').enumerate() {
+            // Leave this here in case we need to debug a bug.
+            dbg!(gen, movement);
+
+            assert!(["D", "U", "R", "L"].contains(&movement));
+        }
     }
 }
