@@ -115,13 +115,13 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
 
     let mut history = vec![HashMap::<Position, Movement>::new()];
 
-    let (mut maxi, mut maxj) = (0, 0);
+    let mut best_pos = automaton.source;
 
     for gen in 0.. {
         assert!(gen <= MAX_GENERATIONS);
 
         if gen > 0 && gen % 100 == 0 {
-            dbg!(gen, maxi, maxj);
+            dbg!(gen, best_pos);
         }
 
         let next_generation = automaton.next_generation();
@@ -137,8 +137,9 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
                 continue;
             }
 
-            maxi = maxi.max(i);
-            maxj = maxj.max(i);
+            if pos.distance(&automaton.destination) < best_pos.distance(&automaton.destination) {
+                best_pos = pos;
+            }
 
             // eprintln!("forward: {gen} {i} {j}");
             // dbg!(&history[gen]);
