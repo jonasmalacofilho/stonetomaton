@@ -215,11 +215,12 @@ impl Automaton {
         let mut new_gen = Grid::new(self.grid.height(), self.grid.width());
 
         for (i, j, &green) in self.grid.cells() {
-            let green_neighbors = self
-                .grid
-                .moore_neighborhood(i, j)
-                .filter(|green| **green)
-                .count();
+            // let green_neighbors = self
+            //     .grid
+            //     .moore_neighborhood(i, j)
+            //     .filter(|green| **green)
+            //     .count();
+            let green_neighbors = self.count_green_neighbors(i, j);
 
             *new_gen.get_mut(i, j).unwrap() = if green {
                 (4..=5).contains(&green_neighbors)
@@ -240,6 +241,30 @@ impl Automaton {
             ..*self
         }
     }
+
+    fn count_green_neighbors(&self, i: i16, j: i16) -> u8 {
+        let helper = |addi: i16, addj: i16| -> u8 {
+            let i = i + addi;
+            let j = j + addj;
+
+            if i < 0 || i >= self.grid.height() || j < 0 || j >= self.grid.width() {
+                return 0;
+            }
+
+            let index = i as usize * (self.grid.width() as usize) + j as usize;
+            // Just as fast as unsafe `get_unchecked`:
+            self.grid.raw()[index] as _
+        };
+
+        helper(-1, -1)
+            + helper(-1, 0)
+            + helper(-1, 1)
+            + helper(0, -1)
+            + helper(0, 1)
+            + helper(1, -1)
+            + helper(1, 0)
+            + helper(1, 1)
+    }
 }
 
 impl Display for Automaton {
@@ -255,7 +280,6 @@ impl Display for Automaton {
         Ok(())
     }
 }
-
 /// Parses the input.
 fn parse(s: &str) -> Automaton {
     let mut source = None;

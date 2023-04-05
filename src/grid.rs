@@ -85,6 +85,10 @@ impl<T> Grid<T> {
         })
     }
 
+    pub fn raw(&self) -> &[T] {
+        &self.raw
+    }
+
     fn index(&self, i: i16, j: i16) -> Option<usize> {
         if !(0..self.height).contains(&i) || !(0..self.width).contains(&j) {
             return None;
