@@ -215,22 +215,24 @@ impl Automaton {
         let mut new_gen = Grid::new(self.grid.height(), self.grid.width());
 
         for (i, j, &green) in self.grid.cells() {
-            // In level 2 challenges the source and destination positions are immutably white.
-            if self.immutable_endpoints
-                && ((i, j) == (self.source.i, self.source.j)
-                    || (i, j) == (self.destination.i, self.destination.j))
-            {
-                continue;
-            }
-
             let green_neighbors = self
                 .grid
                 .moore_neighborhood(i, j)
                 .filter(|green| **green)
                 .count();
 
-            *new_gen.get_mut(i, j).unwrap() = (green && (4..=5).contains(&green_neighbors))
-                || (!green && (2..=4).contains(&green_neighbors));
+            *new_gen.get_mut(i, j).unwrap() = if green {
+                (4..=5).contains(&green_neighbors)
+            } else {
+                (2..=4).contains(&green_neighbors)
+            };
+        }
+
+        if self.immutable_endpoints {
+            *new_gen.get_mut(self.source.i, self.source.j).unwrap() = false;
+            *new_gen
+                .get_mut(self.destination.i, self.destination.j)
+                .unwrap() = false;
         }
 
         Automaton {
