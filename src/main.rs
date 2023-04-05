@@ -85,16 +85,18 @@ fn main() {
         automaton.immutable_endpoints = true;
     }
 
-    assert_eq!(args, HashSet::new());
-
     let path = find_path(automaton.clone());
 
     println!("{}", path_to_string(&path));
     eprintln!("{} movements", path.len());
 
-    let lives_lost = lives_lost(&path, automaton);
-    eprintln!("{} lives lost", lives_lost);
-    assert_eq!(lives_lost, 0);
+    if args.remove("--check") {
+        let lives_lost = lives_lost(&path, automaton);
+        eprintln!("{} lives lost", lives_lost);
+        assert_eq!(lives_lost, 0);
+    }
+
+    assert_eq!(args, HashSet::new());
 }
 
 /// Reads the input and finds a path from  source to destination.
