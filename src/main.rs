@@ -127,7 +127,7 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
         }
 
         let next_generation = automaton.next_generation();
-        history.push(HashMap::new());
+        history.push(HashMap::with_capacity(history[gen].capacity()));
 
         for (i, j, &cell) in automaton.grid.cells() {
             let pos = Position { i, j };
