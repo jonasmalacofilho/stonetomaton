@@ -209,7 +209,7 @@ fn path_to_string(path: &[Movement]) -> String {
 /// The automaton.
 #[derive(Debug, Clone)]
 struct Automaton {
-    grid: Grid<bool>,
+    grid: Grid,
     source: Position,
     destination: Position,
 
