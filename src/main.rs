@@ -123,7 +123,7 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
         assert!(gen <= MAX_GENERATIONS);
 
         if gen > 0 && gen % 100 == 0 {
-            dbg!(gen, best_pos);
+            dbg!(gen, best_pos, history[gen].len(), history[gen].capacity());
         }
 
         let next_generation = automaton.next_generation();
@@ -139,8 +139,18 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
                 continue;
             }
 
-            if pos.distance(&automaton.destination) < best_pos.distance(&automaton.destination) {
+            let pos_dist = pos.distance(&automaton.destination);
+            let best_dist = best_pos.distance(&automaton.destination);
+            if pos_dist < best_dist {
                 best_pos = pos;
+            } else if pos_dist > best_dist + 50 {
+                // HACK: Bound the how much history we keep and, consequently, how much memory we
+                // use, by only considering moves closer to the destination. In a way this is a
+                // poor program's version of an A* algorithm.
+                // FIXME: should compare against last gen's best dist, not the best dist being
+                // updated in this generation.
+                // FIXME: replace with an actual A*.
+                continue;
             }
 
             // eprintln!("forward: {gen} {i} {j}");
