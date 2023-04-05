@@ -66,7 +66,9 @@ mod position;
 use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fmt::{Display, Write};
+use std::hint::black_box;
 use std::io::{self, Read};
+use std::time::{Instant, Duration};
 
 use crate::grid::Grid;
 use crate::position::Movement::{self, *};
@@ -83,6 +85,20 @@ fn main() {
     let mut automaton = parse(&input);
     if args.remove("--immutable-endpoints") {
         automaton.immutable_endpoints = true;
+    }
+
+    if args.remove("--bench-automaton") {
+        const ITERATIONS: usize = 150;
+        let start = Instant::now();
+        for _ in 0..ITERATIONS {
+            automaton = automaton.next_generation();
+        }
+        black_box(&automaton);
+        let throughput_value = start.elapsed().div_f64(ITERATIONS as f64);
+        let throughput = 1. / throughput_value.as_secs_f64();
+        let estimate_6200 = Duration::from_secs_f64(6200. / throughput);
+        dbg!(throughput_value, throughput, estimate_6200);
+        return;
     }
 
     let path = find_path(automaton.clone());
