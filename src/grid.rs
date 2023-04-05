@@ -38,7 +38,8 @@ impl Grid {
 
     /// Returns a reference to the value in cell `(i, j)`, or `None` if `(i, j)` is not in bounds.
     pub fn get(&self, i: i16, j: i16) -> Option<bool> {
-        self.raw.get(self.index(i, j)?).copied()
+        let index = self.index(i, j)?;
+        self.raw.get(index).copied()
     }
 
     /// Returns a mutable reference to the value in cell `(i, j)`, or `None` if `(i, j)` is not in
@@ -76,7 +77,6 @@ impl Grid {
         fn helper(grid: &Grid, i: i16, j: i16, addi: i16, addj: i16) -> u8 {
             if let Some(index) = grid.index(i + addi, j + addj) {
                 // SAFETY: `index` is in bounds.
-                // FIXME: add tests for `Self::index` since safety now depends on its correctness.
                 unsafe { *grid.raw.get_unchecked(index) as u8 }
             } else {
                 0
@@ -97,6 +97,7 @@ impl Grid {
         &self.raw
     }
 
+    // FIXME: add tests since safety now depends on its correctness.
     fn index(&self, i: i16, j: i16) -> Option<usize> {
         if !(0..self.height).contains(&i) || !(0..self.width).contains(&j) {
             return None;
