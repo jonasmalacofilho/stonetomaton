@@ -218,7 +218,7 @@ struct Automaton {
 
 impl Automaton {
     fn green(&self, pos: Position) -> Option<bool> {
-        self.grid.get(pos.i, pos.j).copied()
+        self.grid.get(pos.i, pos.j)
     }
 
     fn next_generation(&self) -> Self {
@@ -232,18 +232,18 @@ impl Automaton {
             //     .count();
             let green_neighbors = self.count_green_neighbors(i, j);
 
-            *new_gen.get_mut(i, j).unwrap() = if green {
+            let new_cell = if green {
                 (4..=5).contains(&green_neighbors)
             } else {
                 (2..=4).contains(&green_neighbors)
             };
+
+            new_gen.set(i, j, new_cell);
         }
 
         if self.immutable_endpoints {
-            *new_gen.get_mut(self.source.i, self.source.j).unwrap() = false;
-            *new_gen
-                .get_mut(self.destination.i, self.destination.j)
-                .unwrap() = false;
+            new_gen.set(self.source.i, self.source.j, false);
+            new_gen.set(self.destination.i, self.destination.j, false);
         }
 
         Automaton {

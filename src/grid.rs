@@ -37,15 +37,15 @@ impl Grid {
     }
 
     /// Returns a reference to the value in cell `(i, j)`, or `None` if `(i, j)` is not in bounds.
-    pub fn get(&self, i: i16, j: i16) -> Option<&bool> {
-        self.raw.get(self.index(i, j)?)
+    pub fn get(&self, i: i16, j: i16) -> Option<bool> {
+        self.raw.get(self.index(i, j)?).copied()
     }
 
     /// Returns a mutable reference to the value in cell `(i, j)`, or `None` if `(i, j)` is not in
     /// bounds.
-    pub fn get_mut(&mut self, i: i16, j: i16) -> Option<&mut bool> {
-        let index = self.index(i, j)?;
-        self.raw.get_mut(index)
+    pub fn set(&mut self, i: i16, j: i16, value: bool) {
+        let index = self.index(i, j).unwrap();
+        self.raw[index] = value;
     }
 
     /// Iterate through all cells in the grid.
@@ -70,19 +70,20 @@ impl Grid {
     ///
     /// The grid does *not* wrap around the edges, and `(i, j)` must point to a cell within the
     /// grid (in other words, it must in bounds).
-    pub fn moore_neighborhood(&self, i: i16, j: i16) -> impl Iterator<Item = &bool> {
-        // TODO: return an empty iterator instead... without penalizing performance.
-        assert!(self.index(i, j).is_some(), "`(i, j)` should be in bounds");
-
-        ((i - 1)..=(i + 1)).flat_map(move |x| {
-            ((j - 1)..=(j + 1)).filter_map(move |y| {
-                if (x, y) == (i, j) {
-                    None
-                } else {
-                    self.get(x, y)
-                }
+    pub fn moore_neighborhood(&self, i: i16, j: i16) -> u8 {
+        let this = (self.get(i, j).unwrap() == true) as u8;
+        ((i - 1)..=(i + 1))
+            .flat_map(move |x| {
+                ((j - 1)..=(j + 1)).filter_map(move |y| {
+                    if let Some(true) = self.get(x, y) {
+                        Some(())
+                    } else {
+                        None
+                    }
+                })
             })
-        })
+            .count() as u8
+            - this
     }
 
     pub fn raw(&self) -> &[bool] {
@@ -122,17 +123,14 @@ mod tests {
         assert_eq!(grid.height(), 2);
         assert_eq!(grid.width(), 5);
 
-        assert_eq!(grid.get(1, 3), Some(&true));
+        assert_eq!(grid.get(1, 3), Some(true));
         assert_eq!(grid.get(2, 3), None);
         assert_eq!(grid.get(-1, 3), None);
         assert_eq!(grid.get(1, 5), None);
         assert_eq!(grid.get(1, -1), None);
 
-        assert_eq!(grid.get_mut(1, 3), Some(&mut true));
-        assert_eq!(grid.get_mut(2, 3), None);
-        assert_eq!(grid.get_mut(-1, 3), None);
-        assert_eq!(grid.get_mut(1, 5), None);
-        assert_eq!(grid.get_mut(1, -1), None);
+        grid.set(1, 3, false);
+        assert_eq!(grid.get(1, 3), Some(false));
     }
 
     #[test]
@@ -172,15 +170,9 @@ mod tests {
         let vecs = vec![vec![false, true, true], vec![true; 3], vec![true; 3]];
         let grid = Grid::from_nested_vecs(vecs);
 
-        assert_eq!(
-            grid.moore_neighborhood(1, 1).collect::<Vec<_>>(),
-            vec![&false, &true, &true, &true, &true, &true, &true, &true]
-        );
+        assert_eq!(grid.moore_neighborhood(1, 1), 7);
 
-        assert_eq!(
-            grid.moore_neighborhood(2, 2).collect::<Vec<_>>(),
-            vec![(&true), (&true), (&true),]
-        );
+        assert_eq!(grid.moore_neighborhood(2, 2), 3);
     }
 
     #[test]
