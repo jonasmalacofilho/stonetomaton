@@ -458,7 +458,7 @@ mod main_tests {
             #[test]
             #[ignore]
             fn challenge1() {
-                const GOLDEN_LENGTH: usize = 6176;
+                const GOLDEN_LENGTH: usize = 6176; // score ==  1000
 
                 let input = fs::read_to_string("input1.txt").unwrap();
                 let mut automaton = parse(&input);
@@ -479,6 +479,7 @@ mod main_tests {
             #[ignore]
             fn challenge2() {
                 const GOLDEN_LENGTH: usize = 6264; // FIXME: suboptimal, unchecked, ~810 s, ~21 GiB.
+                                                   // score >= 957
 
                 let input = fs::read_to_string("input2.txt").unwrap();
                 let mut automaton = parse(&input);
@@ -499,6 +500,7 @@ mod main_tests {
             #[ignore]
             fn challenge3() {
                 const GOLDEN_LENGTH: usize = 6200; // FIXME: suboptimal, unchecked, ~820 s, ~17? GiB.
+                                                   // score >= 967
 
                 let input = fs::read_to_string("input3.txt").unwrap();
                 let mut automaton = parse(&input);
