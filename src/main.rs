@@ -145,7 +145,7 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
         let next_generation = automaton.next_generation();
         history.push(HashMap::with_capacity(history[gen].capacity()));
 
-        for (i, j, &cell) in automaton.grid.cells() {
+        for (i, j, cell) in automaton.grid.cells() {
             let pos = Position { i, j };
 
             if cell
@@ -240,7 +240,7 @@ impl Automaton {
     fn next_generation(&self) -> Self {
         let mut new_gen = Grid::new(self.grid.height(), self.grid.width());
 
-        for (i, j, &green) in self.grid.cells() {
+        for (i, j, green) in self.grid.cells() {
             let green_neighbors = self.grid.count_neighbors(i, j);
 
             let new_cell = if green {
@@ -266,7 +266,7 @@ impl Automaton {
 
 impl Display for Automaton {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for (i, j, &green) in self.grid.cells() {
+        for (i, j, green) in self.grid.cells() {
             if j != 0 {
                 f.write_char(' ')?;
             } else if i != 0 {

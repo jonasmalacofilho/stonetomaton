@@ -50,11 +50,11 @@ impl Grid {
     }
 
     /// Iterate through all cells in the grid.
-    pub fn cells(&self) -> impl Iterator<Item = (i16, i16, &bool)> {
+    pub fn cells(&self) -> impl Iterator<Item = (i16, i16, bool)> + '_ {
         let (mut i, mut j) = (0, 0);
         iter::from_fn(move || {
             if let Some(index) = self.index(i, j) {
-                let cur = (i, j, &self.raw[index]);
+                let cur = (i, j, self.raw[index]);
                 j += 1;
                 if j >= self.width {
                     j = 0;
@@ -155,12 +155,12 @@ mod tests {
         assert_eq!(
             grid.cells().collect::<Vec<_>>(),
             vec![
-                (0, 0, &false),
-                (0, 1, &true),
-                (0, 2, &true),
-                (1, 0, &true),
-                (1, 1, &true),
-                (1, 2, &true)
+                (0, 0, false),
+                (0, 1, true),
+                (0, 2, true),
+                (1, 0, true),
+                (1, 1, true),
+                (1, 2, true)
             ]
         );
     }
