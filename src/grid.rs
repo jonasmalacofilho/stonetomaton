@@ -54,7 +54,8 @@ impl Grid {
         let (mut i, mut j) = (0, 0);
         iter::from_fn(move || {
             if let Some(index) = self.index(i, j) {
-                let cur = (i, j, self.raw[index]);
+                // SAFETY: `index` is in bounds.
+                let cur = (i, j, unsafe { *self.raw.get_unchecked(index) });
                 j += 1;
                 if j >= self.width {
                     j = 0;
