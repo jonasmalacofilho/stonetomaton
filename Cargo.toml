@@ -11,7 +11,15 @@ publish = false
 [dependencies]
 
 [profile.release]
-codegen-units = 1
-lto = "fat"
+debug = 1
 panic = "abort"
+
+[profile.release-lto]
+inherits = "release"
+lto = "fat"
+
+[profile.release-extreme]
+inherits = "release-lto"
+codegen-units = 1
+debug = 0
 strip = "symbols"
