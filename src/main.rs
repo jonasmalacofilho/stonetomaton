@@ -432,10 +432,9 @@ mod main_tests {
                 // const GOLDEN_OUTPUT: &str = "D U D U D U D U D U D U R R R R R R R R R R R R R R R R R R D D D D D D R D D D R R L D D D D D U D R D R D D R R D D D D L R D D R U R U U D R R D L R R R R D D R D R D R D D U D L U R R R R D R D R R U D L R R D U U D U D R R D R R D D U D R D D L R R R D D R U D R L R R D U R D D R R D D R R R R R L R D D R L D R D D D D D D D R R U R R D D D R U D R R D D R R R R R L R U D R U R R R D R R R D D L L R R R R R R D D U D D D D D R D D";
 
                 let input = fs::read_to_string("input.txt").unwrap();
-
                 let automaton = parse(&input);
-                let path = find_path(automaton.clone());
 
+                let path = find_path(automaton.clone());
                 assert_eq!(lives_lost(&path, automaton), 0);
                 assert_eq!(path.len(), GOLDEN_LENGTH);
 
@@ -452,13 +451,58 @@ mod main_tests {
                 const GOLDEN_LENGTH: usize = 6176;
 
                 let input = fs::read_to_string("input1.txt").unwrap();
-                let automaton = parse(&input);
-                let path = find_path(automaton.clone());
+                let mut automaton = parse(&input);
+                automaton.immutable_endpoints = true;
 
+                let path = find_path(automaton.clone());
                 assert_eq!(lives_lost(&path, automaton), 0);
                 assert_eq!(path.len(), GOLDEN_LENGTH);
 
-                validade_path_format(&path_to_string(&path));
+                let mut path = path_to_string(&path);
+                validade_path_format(&path);
+
+                path.push('\n');
+                fs::write("output1.txt.candidate", path).unwrap();
+            }
+
+            #[test]
+            #[ignore]
+            fn challenge2() {
+                const GOLDEN_LENGTH: usize = 6264; // FIXME: suboptimal, unchecked, ~810 s, ~21 GiB.
+
+                let input = fs::read_to_string("input2.txt").unwrap();
+                let mut automaton = parse(&input);
+                automaton.immutable_endpoints = true;
+
+                let path = find_path(automaton.clone());
+                assert!(dbg!(lives_lost(&path, automaton)) <= 5);
+                assert!(dbg!(path.len()) <= GOLDEN_LENGTH);
+
+                let mut path = path_to_string(&path);
+                validade_path_format(&path);
+
+                path.push('\n');
+                fs::write("output2.txt.candidate", path).unwrap();
+            }
+
+            #[test]
+            #[ignore]
+            fn challenge3() {
+                const GOLDEN_LENGTH: usize = 6200; // FIXME: suboptimal, unchecked, ~820 s, ~17? GiB.
+
+                let input = fs::read_to_string("input3.txt").unwrap();
+                let mut automaton = parse(&input);
+                automaton.immutable_endpoints = true;
+
+                let path = find_path(automaton.clone());
+                assert_eq!(lives_lost(&path, automaton), 0);
+                assert!(dbg!(path.len()) <= GOLDEN_LENGTH);
+
+                let mut path = path_to_string(&path);
+                validade_path_format(&path);
+
+                path.push('\n');
+                fs::write("output3.txt.candidate", path).unwrap();
             }
         }
     }
