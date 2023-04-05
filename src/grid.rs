@@ -66,24 +66,31 @@ impl Grid {
         })
     }
 
-    /// Iterate through the values in the Moore neighborhood of cell `(i, j)`.
+    /// Count cells set to `true` in the Moore's neighborhood of `(i, j)`.
     ///
     /// The grid does *not* wrap around the edges, and `(i, j)` must point to a cell within the
     /// grid (in other words, it must in bounds).
-    pub fn moore_neighborhood(&self, i: i16, j: i16) -> u8 {
-        let this = (self.get(i, j).unwrap() == true) as u8;
-        ((i - 1)..=(i + 1))
-            .flat_map(move |x| {
-                ((j - 1)..=(j + 1)).filter_map(move |y| {
-                    if let Some(true) = self.get(x, y) {
-                        Some(())
-                    } else {
-                        None
-                    }
-                })
-            })
-            .count() as u8
-            - this
+    pub fn count_neighbors(&self, i: i16, j: i16) -> u8 {
+        assert!(self.index(i, j).is_some());
+
+        fn helper(grid: &Grid, i: i16, j: i16, addi: i16, addj: i16) -> u8 {
+            if let Some(index) = grid.index(i + addi, j + addj) {
+                // SAFETY: `index` is in bounds.
+                // FIXME: add tests for `Self::index` since safety now depends on its correctness.
+                unsafe { *grid.raw.get_unchecked(index) as u8 }
+            } else {
+                0
+            }
+        }
+
+        helper(self, i, j, -1, -1)
+            + helper(self, i, j, -1, 0)
+            + helper(self, i, j, -1, 1)
+            + helper(self, i, j, 0, -1)
+            + helper(self, i, j, 0, 1)
+            + helper(self, i, j, 1, -1)
+            + helper(self, i, j, 1, 0)
+            + helper(self, i, j, 1, 1)
     }
 
     pub fn raw(&self) -> &[bool] {
@@ -170,9 +177,9 @@ mod tests {
         let vecs = vec![vec![false, true, true], vec![true; 3], vec![true; 3]];
         let grid = Grid::from_nested_vecs(vecs);
 
-        assert_eq!(grid.moore_neighborhood(1, 1), 7);
+        assert_eq!(grid.count_neighbors(1, 1), 7);
 
-        assert_eq!(grid.moore_neighborhood(2, 2), 3);
+        assert_eq!(grid.count_neighbors(2, 2), 3);
     }
 
     #[test]
@@ -189,6 +196,6 @@ mod tests {
         let vecs = vec![vec![false, true, true], vec![true; 3]];
         let grid = Grid::from_nested_vecs(vecs);
 
-        let _should_panic = grid.moore_neighborhood(2, 3);
+        let _should_panic = grid.count_neighbors(2, 3);
     }
 }

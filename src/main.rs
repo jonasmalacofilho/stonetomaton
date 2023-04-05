@@ -68,7 +68,7 @@ use std::env;
 use std::fmt::{Display, Write};
 use std::hint::black_box;
 use std::io::{self, Read};
-use std::time::{Instant, Duration};
+use std::time::{Duration, Instant};
 
 use crate::grid::Grid;
 use crate::position::Movement::{self, *};
@@ -241,12 +241,7 @@ impl Automaton {
         let mut new_gen = Grid::new(self.grid.height(), self.grid.width());
 
         for (i, j, &green) in self.grid.cells() {
-            // let green_neighbors = self
-            //     .grid
-            //     .moore_neighborhood(i, j)
-            //     .filter(|green| **green)
-            //     .count();
-            let green_neighbors = self.count_green_neighbors(i, j);
+            let green_neighbors = self.grid.count_neighbors(i, j);
 
             let new_cell = if green {
                 (4..=5).contains(&green_neighbors)
@@ -266,30 +261,6 @@ impl Automaton {
             grid: new_gen,
             ..*self
         }
-    }
-
-    fn count_green_neighbors(&self, i: i16, j: i16) -> u8 {
-        let helper = |addi: i16, addj: i16| -> u8 {
-            let i = i + addi;
-            let j = j + addj;
-
-            if i < 0 || i >= self.grid.height() || j < 0 || j >= self.grid.width() {
-                return 0;
-            }
-
-            let index = i as usize * (self.grid.width() as usize) + j as usize;
-            // Just as fast as unsafe `get_unchecked`:
-            self.grid.raw()[index] as _
-        };
-
-        helper(-1, -1)
-            + helper(-1, 0)
-            + helper(-1, 1)
-            + helper(0, -1)
-            + helper(0, 1)
-            + helper(1, -1)
-            + helper(1, 0)
-            + helper(1, 1)
     }
 }
 
