@@ -12,15 +12,10 @@ publish = false
 rustc-hash = "1.1.0"
 
 [profile.release]
-debug = 1
-panic = "abort"
-
-[profile.release-lto]
-inherits = "release"
-lto = "fat"
-
-[profile.release-extreme]
-inherits = "release-lto"
 codegen-units = 1
-debug = 0
+lto = "fat"
+panic = "abort"
 strip = "symbols"
+
+[profile.dev]
+opt-level = 1
