@@ -296,15 +296,17 @@ fn parse(s: &str) -> Automaton {
                 .map(|(j, cell)| {
                     let cell = cell
                         .parse::<u8>()
-                        .expect("could not parse cell at ({i}, {j})");
+                        .unwrap_or_else(|_| panic!("could not parse cell `{cell}` at ({i}, {j})"));
 
                     if cell == 1 {
                         return true;
                     }
 
                     let pos = Some(Position {
-                        i: i.try_into().expect("unexpectedly high row index {i}"),
-                        j: j.try_into().expect("unexpectedly high column index {j}"),
+                        i: i.try_into()
+                            .unwrap_or_else(|_| panic!("unexpectedly high row index {i}")),
+                        j: j.try_into()
+                            .unwrap_or_else(|_| panic!("unexpectedly high column index {j}")),
                     });
 
                     if cell == 3 {
