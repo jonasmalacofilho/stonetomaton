@@ -180,7 +180,7 @@ mod tests {
     }
 
     #[test]
-    fn iterate_through_the_moore_neighborhood() {
+    fn count_neighbors() {
         //    Grid           Moore neighborhoods
         //  +-------+      +-------+      +-------+
         //  | 0 1 1 |      | 0 1 1 |      |       |
@@ -193,7 +193,6 @@ mod tests {
         let grid = Grid::from_nested_vecs(vecs);
 
         assert_eq!(grid.count_neighbors(1, 1), 7);
-
         assert_eq!(grid.count_neighbors(2, 2), 3);
     }
 
