@@ -63,14 +63,14 @@
 mod grid;
 mod position;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::env;
 use std::fmt::{Display, Write};
 use std::hint::black_box;
 use std::io::{self, Read};
 use std::time::{Duration, Instant};
 
-use rustc_hash::FxHashMap;
+type OptHashMap<K, V> = ahash::AHashMap<K, V>;
 
 use crate::grid::Grid;
 use crate::position::Movement::{self, *};
@@ -133,7 +133,7 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
     // - instead of a queue, it's possible to just scan the current generation (but the queue size
     // is bounded by `2 * R * C`);
 
-    let mut history = vec![FxHashMap::<Position, Movement>::default()];
+    let mut history = vec![OptHashMap::<Position, Movement>::default()];
 
     let mut best_pos = automaton.source;
 
@@ -145,7 +145,7 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
         }
 
         let next_generation = automaton.next_generation();
-        history.push(FxHashMap::with_capacity_and_hasher(
+        history.push(OptHashMap::with_capacity_and_hasher(
             history[gen].capacity(),
             Default::default(),
         ));
