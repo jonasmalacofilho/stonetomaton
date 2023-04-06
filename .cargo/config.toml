@@ -1,0 +1,11 @@
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-Ctarget-cpu=native"]
+
+[target.aarch64-apple-darwin]
+rustflags = ["-Ctarget-cpu=apple-m1"]
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-Ctarget-cpu=native"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-Ctarget-cpu=native"]
