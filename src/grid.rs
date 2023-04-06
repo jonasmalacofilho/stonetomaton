@@ -2,6 +2,7 @@
 
 use std::fmt::{Display, Write};
 use std::iter;
+use std::str::FromStr;
 
 /// A 2-dimensional grid of bool values.
 ///
@@ -95,6 +96,48 @@ impl Grid {
             + helper(self, i, j, 1, 1)
     }
 
+    /// Rotate once, clockwise.
+    #[must_use]
+    pub fn rotate(&self) -> Self {
+        let mut grid = Grid {
+            height: self.width,
+            width: self.height,
+            raw: vec![false; self.raw.len()],
+        };
+
+        for (i, j, cell) in self.cells() {
+            grid.set(j, self.height - i - 1, cell);
+        }
+
+        grid
+    }
+
+    /// Flip once, horizontally.
+    ///
+    /// To flip vertically, rotate twice then flip horizontally.
+    #[must_use]
+    pub fn flip(&self) -> Self {
+        let mut grid = Grid {
+            raw: vec![false; self.raw.len()],
+            ..*self
+        };
+
+        for (i, j, cell) in self.cells() {
+            grid.set(i, self.width - j - 1, cell);
+        }
+
+        grid
+    }
+
+    /// Invert all cells.
+    #[must_use]
+    pub fn invert(&self) -> Self {
+        Grid {
+            raw: self.raw.iter().map(|&x| !x).collect(),
+            ..*self
+        }
+    }
+
     pub fn raw(&self) -> &[bool] {
         &self.raw
     }
@@ -127,6 +170,27 @@ impl Display for Grid {
             f.write_char(if cell { '1' } else { '0' })?;
         }
         Ok(())
+    }
+}
+
+impl FromStr for Grid {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let tmp: Result<Vec<Vec<_>>, _> = s
+            .lines()
+            .enumerate()
+            .map(|(i, line)| {
+                line.split(' ')
+                    .enumerate()
+                    .map(|(j, cell)| match cell {
+                        "0" => Ok(false),
+                        "1" => Ok(true),
+                        _ => Err(format!("could not parse cell `{cell}` at ({i}, {j})")),
+                    })
+                    .collect()
+            })
+            .collect();
+        Ok(Grid::from_nested_vecs(tmp?))
     }
 }
 
@@ -213,5 +277,57 @@ mod tests {
         let grid = Grid::from_nested_vecs(vecs);
 
         let _should_panic = grid.count_neighbors(2, 3);
+    }
+
+    #[test]
+    fn parse_and_display_back() {
+        const INITIAL: &str = "\
+            0 1 1\n\
+            1 1 0\n\
+            1 0 0";
+        let grid: Grid = INITIAL.parse().unwrap();
+        assert_eq!(grid.to_string(), INITIAL);
+    }
+
+    #[test]
+    fn rotate_once() {
+        const INITIAL: &str = "\
+            0 1 1\n\
+            1 1 0\n\
+            0 0 1";
+        const ROTATED: &str = "\
+            0 1 0\n\
+            0 1 1\n\
+            1 0 1";
+        let grid: Grid = INITIAL.parse().unwrap();
+        assert_eq!(grid.rotate().to_string(), ROTATED);
+    }
+
+    #[test]
+    fn flip_horizontally_once() {
+        const INITIAL: &str = "\
+            0 1 1\n\
+            1 1 0\n\
+            0 0 1";
+        const FLIPPED: &str = "\
+            1 1 0\n\
+            0 1 1\n\
+            1 0 0";
+        let grid: Grid = INITIAL.parse().unwrap();
+        assert_eq!(grid.flip().to_string(), FLIPPED);
+    }
+
+    #[test]
+    fn invert() {
+        const INITIAL: &str = "\
+            0 1 1\n\
+            1 1 0\n\
+            0 0 1";
+        const INVERTED: &str = "\
+            1 0 0\n\
+            0 0 1\n\
+            1 1 0";
+        let grid: Grid = INITIAL.parse().unwrap();
+        assert_eq!(grid.invert().to_string(), INVERTED);
     }
 }
