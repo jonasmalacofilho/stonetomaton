@@ -1,5 +1,6 @@
 //! A 2-dimensional grid.
 
+use std::fmt::{Display, Write};
 use std::iter;
 
 /// A 2-dimensional grid of bool values.
@@ -112,6 +113,18 @@ impl Grid {
         let (h, w): (usize, usize) = (height.try_into().unwrap(), width.try_into().unwrap());
         let raw = vec![Default::default(); h * w];
         Self { height, width, raw }
+    }
+}
+
+impl Display for Grid {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for (i, j, cell) in self.cells() {
+            if j == 0 && i != 0 {
+                f.write_char('\n')?;
+            }
+            f.write_str(if cell { "██" } else { "░░" })?;
+        }
+        Ok(())
     }
 }
 

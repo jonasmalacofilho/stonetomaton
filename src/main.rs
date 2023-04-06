@@ -65,7 +65,7 @@ mod position;
 
 use std::collections::HashSet;
 use std::env;
-use std::fmt::{Display, Write};
+use std::fmt::Display;
 use std::hint::black_box;
 use std::io::{self, Read};
 use std::time::{Duration, Instant};
@@ -271,17 +271,10 @@ impl Automaton {
 
 impl Display for Automaton {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for (i, j, green) in self.grid.cells() {
-            if j != 0 {
-                f.write_char(' ')?;
-            } else if i != 0 {
-                f.write_char('\n')?;
-            }
-            f.write_char(if green { '1' } else { '0' })?;
-        }
-        Ok(())
+        self.grid.fmt(f)
     }
 }
+
 /// Parses the input.
 fn parse(s: &str) -> Automaton {
     let mut source = None;
@@ -375,29 +368,36 @@ mod main_tests {
     #[test]
     fn parse_grid_and_display_back() {
         const INPUT: &str = "\
-0 0 0 0 0
-0 1 0 1 4
-3 0 1 0 0
-0 0 0 0 0";
+            0 0 0 0 0\n\
+            0 1 0 1 4\n\
+            3 0 1 0 0\n\
+            0 0 0 0 0";
+        const EXPECTED: &str = "\
+            ░░░░░░░░░░\n\
+            ░░██░░██░░\n\
+            ░░░░██░░░░\n\
+            ░░░░░░░░░░";
+        eprintln!("{EXPECTED}");
 
         let initial = parse(INPUT);
         assert_eq!(initial.grid.height(), 4);
         assert_eq!(initial.grid.width(), 5);
         assert_eq!(initial.source, Position { i: 2, j: 0 });
         assert_eq!(initial.destination, Position { i: 1, j: 4 });
-        assert_eq!(initial.to_string(), INPUT.replace(['3', '4'], "0"));
+        assert_eq!(initial.to_string(), EXPECTED);
     }
 
     #[test]
     fn one_generation() {
         const INPUT: &str = "\
-1 1 1 0
-3 1 4 1
-0 1 1 0";
+            1 1 1 0\n\
+            3 1 4 1\n\
+            0 1 1 0";
         const EXPECTED: &str = "\
-0 0 0 1
-1 1 0 0
-1 0 0 1";
+            ░░░░░░██\n\
+            ████░░░░\n\
+            ██░░░░██";
+        eprintln!("{EXPECTED}");
 
         let initial = parse(INPUT);
         let second = initial.next_generation();
