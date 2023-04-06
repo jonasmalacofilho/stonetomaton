@@ -70,6 +70,8 @@ use std::hint::black_box;
 use std::io::{self, Read};
 use std::time::{Duration, Instant};
 
+use rustc_hash::FxHashMap;
+
 use crate::grid::Grid;
 use crate::position::Movement::{self, *};
 use crate::position::Position;
@@ -131,7 +133,7 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
     // - instead of a queue, it's possible to just scan the current generation (but the queue size
     // is bounded by `2 * R * C`);
 
-    let mut history = vec![HashMap::<Position, Movement>::new()];
+    let mut history = vec![FxHashMap::<Position, Movement>::default()];
 
     let mut best_pos = automaton.source;
 
@@ -143,7 +145,10 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
         }
 
         let next_generation = automaton.next_generation();
-        history.push(HashMap::with_capacity(history[gen].capacity()));
+        history.push(FxHashMap::with_capacity_and_hasher(
+            history[gen].capacity(),
+            Default::default(),
+        ));
 
         for (i, j, cell) in automaton.grid.cells() {
             let pos = Position { i, j };
