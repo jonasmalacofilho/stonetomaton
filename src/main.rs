@@ -372,19 +372,13 @@ mod main_tests {
             0 1 0 1 4\n\
             3 0 1 0 0\n\
             0 0 0 0 0";
-        const EXPECTED: &str = "\
-            ░░░░░░░░░░\n\
-            ░░██░░██░░\n\
-            ░░░░██░░░░\n\
-            ░░░░░░░░░░";
-        eprintln!("{EXPECTED}");
 
         let initial = parse(INPUT);
         assert_eq!(initial.grid.height(), 4);
         assert_eq!(initial.grid.width(), 5);
         assert_eq!(initial.source, Position { i: 2, j: 0 });
         assert_eq!(initial.destination, Position { i: 1, j: 4 });
-        assert_eq!(initial.to_string(), EXPECTED);
+        assert_eq!(initial.to_string(), INPUT.replace(['3', '4'], "0"));
     }
 
     #[test]
@@ -394,10 +388,9 @@ mod main_tests {
             3 1 4 1\n\
             0 1 1 0";
         const EXPECTED: &str = "\
-            ░░░░░░██\n\
-            ████░░░░\n\
-            ██░░░░██";
-        eprintln!("{EXPECTED}");
+            0 0 0 1\n\
+            1 1 0 0\n\
+            1 0 0 1";
 
         let initial = parse(INPUT);
         let second = initial.next_generation();

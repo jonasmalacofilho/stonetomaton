@@ -119,10 +119,12 @@ impl Grid {
 impl Display for Grid {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (i, j, cell) in self.cells() {
-            if j == 0 && i != 0 {
+            if j != 0 {
+                f.write_char(' ')?;
+            } else if i != 0 {
                 f.write_char('\n')?;
             }
-            f.write_str(if cell { "██" } else { "░░" })?;
+            f.write_char(if cell { '1' } else { '0' })?;
         }
         Ok(())
     }
