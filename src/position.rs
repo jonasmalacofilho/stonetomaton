@@ -1,10 +1,12 @@
 //! Position and movement in a 2-dimensional grid.
 
+use std::hash::{Hash, Hasher};
+
 /// A position in a 2-dimensional grid.
 ///
 /// The `i` and `j` coordinates are signed integers, making it easier to deal with movements around
 /// `0`, which can result in negative coordinates.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Position {
     /// Row index.
     pub i: i16,
@@ -35,6 +37,13 @@ impl Position {
 
     pub fn distance(&self, other: &Position) -> u16 {
         self.i.abs_diff(other.i) + self.j.abs_diff(other.j)
+    }
+}
+
+impl Hash for Position {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        let combine = (self.i as i32) << 16 | (self.j as i32);
+        combine.hash(state);
     }
 }
 
