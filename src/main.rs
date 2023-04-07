@@ -159,22 +159,6 @@ fn find_path(
     max_generations: usize,
     max_pessimism: u16,
 ) -> Result<Vec<Movement>, Vec<Movement>> {
-    fn assemble_path(
-        history: &[OptHashMap<Position, Movement>],
-        mut gen: usize,
-        mut pos: Position,
-    ) -> Vec<Movement> {
-        let mut path = vec![];
-        while gen > 0 {
-            let movement = history[gen][&pos];
-            path.push(movement);
-            pos = pos.previous(movement);
-            gen -= 1;
-        }
-        path.reverse();
-        path
-    }
-
     let source = automaton.source;
     let destination = automaton.destination;
 
@@ -189,14 +173,7 @@ fn find_path(
 
     for gen in 0..max_generations {
         if (gen + 1) % 100 == 0 {
-            eprintln!(
-                "{PPG}gen={} best_pos={:?} best_dist={} hist_len={} hist_cap={}",
-                gen,
-                best_pos,
-                best_dist,
-                history[gen].len(),
-                history[gen].capacity()
-            );
+            eprintln!("{PPG}gen={gen} best_pos={best_pos:?} best_dist={best_dist}");
         }
 
         let next_generation = automaton.next_generation();
@@ -217,27 +194,13 @@ fn find_path(
                         best_dist = dist;
                         best_gen = gen + 1;
                     } else if dist > best_dist + max_pessimism {
-                        // HACK: Bound how much history we keep and, consequently, how much memory
-                        // we use, by only considering moves closer to the destination. In a way
-                        // this is a poor program's version of an A* algorithm.
+                        // HACK: Bound how much history we keep, and consequently how much memory
+                        // we need, by only considering moves near our current best position.
                         continue;
                     }
                     next_history.entry(next).or_insert(movement);
                 }
             }
-        }
-
-        if next_history.is_empty() {
-            eprintln!("{PAL}No movement in gen={gen}");
-            let _ = fs::write(
-                format!("/tmp/stone-no-path-{}", gen),
-                format!("{automaton}\n"),
-            );
-            let _ = fs::write(
-                format!("/tmp/stone-no-path-{}", gen + 1),
-                format!("{next_generation}\n"),
-            );
-            break;
         }
 
         automaton = next_generation;
@@ -247,6 +210,22 @@ fn find_path(
     eprintln!("{PAL}Failed to reach the destination (distance={best_dist})");
     assert!(best_gen > 0);
     Err(assemble_path(&history, best_gen, best_pos))
+}
+
+fn assemble_path(
+    history: &[OptHashMap<Position, Movement>],
+    mut gen: usize,
+    mut pos: Position,
+) -> Vec<Movement> {
+    let mut path = vec![];
+    while gen > 0 {
+        let movement = history[gen][&pos];
+        path.push(movement);
+        pos = pos.previous(movement);
+        gen -= 1;
+    }
+    path.reverse();
+    path
 }
 
 /// Returns the space-separated list of movements as a string.
