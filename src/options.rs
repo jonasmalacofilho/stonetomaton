@@ -21,13 +21,7 @@ pub struct Options {
     #[arg(long, value_name = "LIMIT", default_value_t = 50)]
     pub max_pessimism: u16,
 
-    /// Source and destination cells are immutable and always dead/white.
-    // TODO: old/clean up.
-    #[arg(long)]
-    pub immutable_endpoints: bool,
-
     /// Check the resulting path(s).
-    // TODO: old/clean up.
     #[arg(long)]
     pub check: bool,
 }
