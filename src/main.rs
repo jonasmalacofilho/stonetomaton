@@ -164,32 +164,21 @@ fn find_path(
 
     for gen in 0..max_generations {
         if gen > 0 && gen % 100 == 0 {
-            eprintln!("{PPG}at gen={gen} best_pos={best_pos:?} best_dist={best_dist}");
+            eprintln!(
+                "{PPG}at gen={} best_pos={:?} best_dist={} hist_len={} hist_cap={}",
+                gen,
+                best_pos,
+                best_dist,
+                history[gen].len(),
+                history[gen].capacity()
+            );
         }
 
         let next_generation = automaton.next_generation();
         let mut next_history =
             OptHashMap::with_capacity_and_hasher(history[gen].capacity(), Default::default());
 
-        let mut to_visit: Vec<_> = history[gen]
-            .keys()
-            .map(|&p| (p, p.distance(&automaton.destination)))
-            .collect();
-        to_visit.sort_unstable_by(|a, b| a.1.cmp(&b.1));
-
-        for (pos, pos_dist) in to_visit.into_iter() {
-            debug_assert_eq!(automaton.green(pos), Some(false));
-
-            if pos_dist < best_dist {
-                best_pos = pos;
-                best_dist = pos_dist;
-            } else if pos_dist > best_dist + max_pessimism {
-                // HACK: Bound the how much history we keep and, consequently, how much memory we
-                // use, by only considering moves closer to the destination. In a way this is a
-                // poor program's version of an A* algorithm.
-                continue;
-            }
-
+        for &pos in history[gen].keys() {
             if pos == destination {
                 let (mut gen, mut pos) = (gen, pos);
                 let mut path = vec![];
@@ -214,6 +203,16 @@ fn find_path(
             for movement in [Up, Down, Left, Right] {
                 let next = pos.next(movement);
                 if let Some(false) = next_generation.green(next) {
+                    let dist = next.distance(&automaton.destination);
+                    if dist < best_dist {
+                        best_pos = next;
+                        best_dist = dist;
+                    } else if dist > best_dist + max_pessimism {
+                        // HACK: Bound how much history we keep and, consequently, how much memory
+                        // we use, by only considering moves closer to the destination. In a way
+                        // this is a poor program's version of an A* algorithm.
+                        continue;
+                    }
                     next_history.entry(next).or_insert(movement);
                 }
             }
@@ -231,6 +230,7 @@ fn find_path(
             );
             return None;
         }
+
         automaton = next_generation;
         history.push(next_history);
     }
