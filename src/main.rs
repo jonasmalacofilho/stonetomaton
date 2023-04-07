@@ -67,9 +67,8 @@ mod position;
 
 use std::fmt::Display;
 use std::fs;
-use std::ops::{Range, RangeInclusive};
+use std::ops::Range;
 use std::path::PathBuf;
-use std::str::FromStr;
 
 use clap::Parser;
 
@@ -99,61 +98,28 @@ fn main() {
             automaton.immutable_endpoints = true;
         }
 
+        if challenge == 4 {
+            eprintln!("{PST}Applying puzzle solution");
+            let inner: Grid = challenge4::PUZZLE_SOLUTION.parse().unwrap();
+            automaton.grid.overwrite(&inner, 2300, 2300);
+            fs::write("/tmp/tmp.txt", format!("{automaton}\n")).unwrap();
+        }
+
         eprintln!("{PST}Path finding");
-        let path = match challenge {
-            0..=3 | 5 => {
-                let path = find_path(
-                    automaton.clone(),
-                    options.max_generations,
-                    options.max_pessimism,
-                )
-                .unwrap();
-                eprintln!("{PST}Path found: {} movements", path.len());
+        let path = find_path(
+            automaton.clone(),
+            options.max_generations,
+            options.max_pessimism,
+        )
+        .unwrap();
+        eprintln!("{PST}Path found: {} movements", path.len());
 
-                if options.check {
-                    eprintln!("{PST}Checking");
-                    let lives_lost = lives_lost(&path, automaton);
-                    assert_eq!(lives_lost, 0); // FIXME
-                    eprintln!("{PST}Passed: loses {} lives", lives_lost);
-                }
-
-                path
-            }
-            4 => {
-                let mut candidates = challenge4::find_paths(
-                    &automaton,
-                    options.with_inner_code,
-                    options.max_generations,
-                    options.max_pessimism,
-                );
-                let mut best = 0;
-                for (i, (code, _, path)) in candidates.iter().enumerate() {
-                    eprintln!(
-                        "{PST}Path found: {} movements using inner grid {}",
-                        path.len(),
-                        *code
-                    );
-                    if path.len() < candidates[best].2.len() {
-                        best = i;
-                    }
-                }
-
-                let (code, _, path) = candidates.remove(best);
-                eprintln!(
-                    "{PST}Best path: {} movements using inner grid {}",
-                    path.len(),
-                    code
-                );
-
-                if options.check {
-                    eprintln!("{PST}Checking");
-                    todo!();
-                }
-
-                path
-            }
-            _ => unimplemented!(),
-        };
+        if options.check {
+            eprintln!("{PST}Checking");
+            let lives_lost = lives_lost(&path, automaton);
+            assert_eq!(lives_lost, 0); // FIXME
+            eprintln!("{PST}Passed: loses {} lives", lives_lost);
+        }
 
         eprintln!("{PST}Saving output to {output:?}");
         let mut path = path_to_string(&path);
@@ -207,6 +173,9 @@ fn find_path(
         if gen > 0 && gen % 100 == 0 {
             // dbg!(gen, best_pos, history[gen].len(), history[gen].capacity());
             eprintln!("{PPG}at gen={gen} best_pos={best_pos:?}");
+            if automaton.grid.width() == 2500 {
+                fs::write(format!("/tmp/tmp{gen}.txt"), format!("{automaton}\n")).unwrap();
+            }
         }
 
         let next_generation = automaton.next_generation();
@@ -340,11 +309,6 @@ impl Display for Automaton {
     }
 }
 
-/// Parses the input.
-fn parse(s: &str) -> Automaton {
-    parse_allow_indeterminate(s, (0..0, 0..0))
-}
-
 fn parse_allow_indeterminate(s: &str, (xi, xj): (Range<i16>, Range<i16>)) -> Automaton {
     let mut source = None;
     let mut destination = None;
@@ -428,6 +392,10 @@ mod main_tests {
 
     const MAX_GENERATIONS: usize = 50_000;
     const MAX_PESSIMISM: u16 = 50;
+
+    fn parse(s: &str) -> Automaton {
+        parse_allow_indeterminate(s, (0..0, 0..0))
+    }
 
     fn validade_path_format(path: &str) {
         for (gen, movement) in path.split(' ').enumerate() {

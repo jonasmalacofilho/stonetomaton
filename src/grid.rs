@@ -196,6 +196,7 @@ impl Display for Grid {
 
 impl FromStr for Grid {
     type Err = String;
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let tmp: Result<Vec<Vec<_>>, _> = s
             .lines()
