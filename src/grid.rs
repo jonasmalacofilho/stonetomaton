@@ -138,6 +138,25 @@ impl Grid {
         }
     }
 
+    /// Overwrite part of `self`, starting at offset `(i, j)`, with cells from `other`.
+    pub fn overwrite(&mut self, other: &Self, i: i16, j: i16) {
+        for (x, y, cell) in other.cells() {
+            self.set(i + x, j + y, cell);
+        }
+    }
+
+    /// Extract part of `self`.
+    #[must_use]
+    pub fn extract(&self, i: i16, j: i16, height: i16, width: i16) -> Self {
+        let mut grid = Grid::new(height, width);
+        for x in 0..height {
+            for y in 0..width {
+                grid.set(x, y, self.get(i + x, j + y).unwrap());
+            }
+        }
+        grid
+    }
+
     pub fn raw(&self) -> &[bool] {
         &self.raw
     }
@@ -292,13 +311,14 @@ mod tests {
     #[test]
     fn rotate_once() {
         const INITIAL: &str = "\
-            0 1 1\n\
-            1 1 0\n\
-            0 0 1";
+            0 1 1 0\n\
+            1 1 0 0\n\
+            0 0 1 0";
         const ROTATED: &str = "\
             0 1 0\n\
             0 1 1\n\
-            1 0 1";
+            1 0 1\n\
+            0 0 0";
         let grid: Grid = INITIAL.parse().unwrap();
         assert_eq!(grid.rotate().to_string(), ROTATED);
     }
@@ -306,13 +326,13 @@ mod tests {
     #[test]
     fn flip_horizontally_once() {
         const INITIAL: &str = "\
-            0 1 1\n\
-            1 1 0\n\
-            0 0 1";
+            0 1 1 0\n\
+            1 1 0 0\n\
+            0 0 1 0";
         const FLIPPED: &str = "\
-            1 1 0\n\
-            0 1 1\n\
-            1 0 0";
+            0 1 1 0\n\
+            0 0 1 1\n\
+            0 1 0 0";
         let grid: Grid = INITIAL.parse().unwrap();
         assert_eq!(grid.flip().to_string(), FLIPPED);
     }
@@ -320,14 +340,45 @@ mod tests {
     #[test]
     fn invert() {
         const INITIAL: &str = "\
-            0 1 1\n\
-            1 1 0\n\
-            0 0 1";
+            0 1 1 0\n\
+            1 1 0 0\n\
+            0 0 1 0";
         const INVERTED: &str = "\
-            1 0 0\n\
-            0 0 1\n\
-            1 1 0";
+            1 0 0 1\n\
+            0 0 1 1\n\
+            1 1 0 1";
         let grid: Grid = INITIAL.parse().unwrap();
         assert_eq!(grid.invert().to_string(), INVERTED);
+    }
+
+    #[test]
+    fn overwrite() {
+        const INITIAL: &str = "\
+            0 1 1 0\n\
+            1 1 0 0\n\
+            0 0 1 0";
+        const OTHER: &str = "\
+            0 1\n\
+            1 1";
+        const CHANGED: &str = "\
+            0 1 1 0\n\
+            1 1 0 1\n\
+            0 0 1 1";
+        let mut grid: Grid = INITIAL.parse().unwrap();
+        grid.overwrite(&OTHER.parse().unwrap(), 1, 2);
+        assert_eq!(grid.to_string(), CHANGED);
+    }
+
+    #[test]
+    fn extract() {
+        const INITIAL: &str = "\
+            0 1 1 0\n\
+            1 1 0 0\n\
+            0 0 1 0";
+        const SUB: &str = "\
+            1 1 0\n\
+            0 0 1";
+        let grid: Grid = INITIAL.parse().unwrap();
+        assert_eq!(grid.extract(1, 0, 2, 3).to_string(), SUB);
     }
 }
