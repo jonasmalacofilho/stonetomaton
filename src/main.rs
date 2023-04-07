@@ -87,31 +87,6 @@ const PPG: &str = "    - ";
 fn main() {
     let options = Options::parse();
 
-    if options.bench_automaton {
-        const ITERATIONS: usize = 150;
-
-        let mut input = String::new();
-        io::stdin().read_to_string(&mut input).unwrap();
-
-        let mut automaton = parse(&input);
-        if options.immutable_endpoints {
-            automaton.immutable_endpoints = true;
-        }
-
-        let start = Instant::now();
-        for _ in 0..ITERATIONS {
-            automaton = automaton.next_generation();
-        }
-        black_box(&automaton);
-
-        let throughput_value = start.elapsed().div_f64(ITERATIONS as f64);
-        let throughput = 1. / throughput_value.as_secs_f64();
-        let estimate_6200 = Duration::from_secs_f64(6200. / throughput);
-        dbg!(throughput_value, throughput, estimate_6200);
-
-        return;
-    }
-
     for challenge in options.challenges() {
         eprintln!("{PCH}Solving challenge {challenge}");
 

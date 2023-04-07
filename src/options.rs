@@ -26,11 +26,6 @@ pub struct Options {
     #[arg(long)]
     pub immutable_endpoints: bool,
 
-    /// Benchmark the automaton loop.
-    // TODO: old/clean up.
-    #[arg(long)]
-    pub bench_automaton: bool,
-
     /// Check the resulting path(s).
     // TODO: old/clean up.
     #[arg(long)]
