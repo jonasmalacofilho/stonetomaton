@@ -78,21 +78,22 @@ use crate::position::Movement::{self, *};
 use crate::position::Position;
 
 type OptHashMap<K, V> = ahash::AHashMap<K, V>;
+type OptHashSet<T> = ahash::AHashSet<T>;
 
-const PCH: &str = "=> ";
-const PST: &str = "   ";
-const PPG: &str = "    - ";
-const PAL: &str = "(W) - ";
+const CHAL: &str = "=> ";
+const STEP: &str = "   ";
+const INFO: &str = "    - ";
+const WARN: &str = "(W) - ";
 
 fn main() {
     let options = Options::parse();
 
     for challenge in options.challenges() {
-        eprintln!("{PCH}Solving challenge {challenge}");
+        eprintln!("{CHAL}Solving challenge {challenge}");
 
         let (input, output) = challenge_paths(challenge);
 
-        eprintln!("{PST}Reading input from {input:?}");
+        eprintln!("{STEP}Reading input from {input:?}");
         let input = fs::read_to_string(input).unwrap();
         let mut automaton = parse_allow_indeterminate(&input, (2300..2310, 2300..2310));
         if challenge != 0 {
@@ -100,35 +101,40 @@ fn main() {
         }
 
         if challenge == 4 {
-            eprintln!("{PST}Applying puzzle solution");
+            eprintln!("{STEP}Applying puzzle solution");
             let inner: Grid = puzzle::SOLUTION.parse().unwrap();
             automaton.grid.overwrite(&inner, 2300, 2300);
             fs::write("/tmp/tmp.txt", format!("{automaton}\n")).unwrap();
         }
 
-        eprintln!("{PST}Path finding");
-        let path = match find_path(
-            automaton.clone(),
-            options.max_generations,
-            options.max_pessimism,
-        ) {
+        eprintln!("{STEP}Path finding");
+        let path = match challenge {
+            0 | 4 => find_path_robust(automaton.clone(), options.max_generations),
+            _ => find_path(
+                automaton.clone(),
+                options.max_generations,
+                options.max_pessimism,
+            ),
+        };
+
+        let path = match path {
             Ok(path) => {
-                eprintln!("{PST}Path found: {} movements", path.len());
+                eprintln!("{STEP}Path found: {} movements", path.len());
                 if options.check {
-                    eprintln!("{PST}Checking");
+                    eprintln!("{STEP}Checking");
                     let lives_lost = lives_lost(&path, automaton);
                     assert_eq!(lives_lost, 0); // FIXME
-                    eprintln!("{PST}Passed: loses {} lives", lives_lost);
+                    eprintln!("{STEP}Passed: loses {} lives", lives_lost);
                 }
                 path
             }
             Err(best_attempt) => {
-                eprintln!("{PST}Best attempt found: {} movements", best_attempt.len());
+                eprintln!("{STEP}Best attempt found: {} movements", best_attempt.len());
                 best_attempt
             }
         };
 
-        eprintln!("{PST}Saving output to {output:?}");
+        eprintln!("{STEP}Saving output to {output:?}");
         let mut path = path_to_string(&path);
         if challenge == 5 {
             // FIXME: HACK.
@@ -152,13 +158,19 @@ fn challenge_paths(number: u8) -> (PathBuf, PathBuf) {
     (input.into(), output.into())
 }
 
-/// Reads the input and finds a path from  source to destination.
-// See "Implementation notes" in the top-level module documentation for more information.
-fn find_path(
+/// Finds a path from a source to a destination.
+///
+/// The `max_pessimism` (roughly equivalent to how much backtracking is allowed) can result in huge
+/// savings in space and time. However, in some cases no path can be found unless `max_pessimism`
+/// is set to really high values, which in turn results in excessive space use; in those instances
+/// [`find_path_robust`] is recommended instead.
+pub fn find_path(
     mut automaton: Automaton,
     max_generations: usize,
     max_pessimism: u16,
 ) -> Result<Vec<Movement>, Vec<Movement>> {
+    eprintln!("{INFO}max_generations={max_generations} max_pessimism={max_pessimism}");
+
     let source = automaton.source;
     let destination = automaton.destination;
 
@@ -173,7 +185,7 @@ fn find_path(
 
     for gen in 0..max_generations {
         if gen != 0 && gen % 100 == 0 {
-            eprintln!("{PPG}gen={gen} best_pos={best_pos:?} best_dist={best_dist}");
+            eprintln!("{INFO}gen={gen} best_pos={best_pos:?} best_dist={best_dist}");
         }
 
         let next_generation = automaton.next_generation();
@@ -204,7 +216,7 @@ fn find_path(
         }
 
         if next_history.is_empty() {
-            eprintln!("{PAL}No movement in gen={gen}");
+            eprintln!("{WARN}No movement in gen={gen}");
             break;
         }
 
@@ -212,9 +224,74 @@ fn find_path(
         history.push(next_history);
     }
 
-    eprintln!("{PAL}Failed to reach the destination (distance={best_dist})");
+    eprintln!("{WARN}Failed to reach the destination (distance={best_dist})");
     assert!(best_gen > 0);
     Err(assemble_path(&history, best_gen, best_pos))
+}
+
+/// Finds a path from a source to a destination.
+///
+/// Generally slower than [`find_path`], but the space requirements only depend on the number of
+/// generations required to reach the destination, which can be benefetial if a lot of backtracking
+/// is required.
+pub fn find_path_robust(
+    mut automaton: Automaton,
+    max_generations: usize,
+) -> Result<Vec<Movement>, Vec<Movement>> {
+    eprintln!("{INFO}max_generations={max_generations} max_pessimism=N/A");
+
+    let source = automaton.source;
+    let destination = automaton.destination;
+
+    let mut history = vec![OptHashSet::<Position>::default()];
+
+    // HACK: avoids special casing gen 0.
+    history[0].insert(source);
+
+    let mut best_pos = automaton.source;
+    let mut best_dist = best_pos.distance(&automaton.destination);
+    let mut best_gen = 0;
+
+    for gen in 0..max_generations {
+        if gen != 0 && gen % 100 == 0 {
+            eprintln!("{INFO}gen={gen} best_pos={best_pos:?} best_dist={best_dist}");
+        }
+
+        let next_generation = automaton.next_generation();
+        let mut next_history =
+            OptHashSet::with_capacity_and_hasher(history[gen].capacity(), Default::default());
+
+        for &pos in history[gen].iter() {
+            if pos == destination {
+                return Ok(assemble_path_from_sets(&history, gen, pos));
+            }
+
+            for movement in [Up, Down, Left, Right] {
+                let next = pos.next(movement);
+                if let Some(false) = next_generation.green(next) {
+                    let dist = next.distance(&automaton.destination);
+                    if dist < best_dist {
+                        best_pos = next;
+                        best_dist = dist;
+                        best_gen = gen + 1;
+                    }
+                    next_history.insert(next);
+                }
+            }
+        }
+
+        if next_history.is_empty() {
+            eprintln!("{WARN}No movement in gen={gen}");
+            break;
+        }
+
+        automaton = next_generation;
+        history.push(next_history);
+    }
+
+    eprintln!("{WARN}Failed to reach the destination (distance={best_dist})");
+    assert!(best_gen > 0);
+    Err(assemble_path_from_sets(&history, best_gen, best_pos))
 }
 
 fn assemble_path(
@@ -228,6 +305,28 @@ fn assemble_path(
         path.push(movement);
         pos = pos.previous(movement);
         gen -= 1;
+    }
+    path.reverse();
+    path
+}
+
+fn assemble_path_from_sets(
+    history: &[OptHashSet<Position>],
+    mut gen: usize,
+    mut pos: Position,
+) -> Vec<Movement> {
+    let mut path = vec![];
+    'outer: while gen > 0 {
+        for movement in [Up, Down, Left, Right] {
+            let prev = pos.previous(movement);
+            if history[gen - 1].contains(&prev) {
+                path.push(movement);
+                gen -= 1;
+                pos = prev;
+                continue 'outer;
+            }
+        }
+        panic!("missing movement"); // FIXME: improve panic message.
     }
     path.reverse();
     path
@@ -454,12 +553,25 @@ mod main_tests {
             #[test]
             fn question2() {
                 const GOLDEN_LENGTH: usize = 220;
-                // const GOLDEN_OUTPUT: &str = "D U D U D U D U D U D U R R R R R R R R R R R R R R R R R R D D D D D D R D D D R R L D D D D D U D R D R D D R R D D D D L R D D R U R U U D R R D L R R R R D D R D R D R D D U D L U R R R R D R D R R U D L R R D U U D U D R R D R R D D U D R D D L R R R D D R U D R L R R D U R D D R R D D R R R R R L R D D R L D R D D D D D D D R R U R R D D D R U D R R D D R R R R R L R U D R U R R R D R R R D D L L R R R R R R D D U D D D D D R D D";
 
                 let input = fs::read_to_string("input.txt").unwrap();
                 let automaton = parse(&input);
 
                 let path = find_path(automaton.clone(), MAX_GENERATIONS, MAX_PESSIMISM).unwrap();
+                assert_eq!(lives_lost(&path, automaton), 0);
+                assert_eq!(path.len(), GOLDEN_LENGTH);
+
+                validade_path_format(&path_to_string(&path));
+            }
+
+            #[test]
+            fn question2_alt_solver() {
+                const GOLDEN_LENGTH: usize = 220;
+
+                let input = fs::read_to_string("input.txt").unwrap();
+                let automaton = parse(&input);
+
+                let path = find_path_robust(automaton.clone(), MAX_GENERATIONS).unwrap();
                 assert_eq!(lives_lost(&path, automaton), 0);
                 assert_eq!(path.len(), GOLDEN_LENGTH);
 
