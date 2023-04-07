@@ -155,68 +155,47 @@ fn find_path(
     let source = automaton.source;
     let destination = automaton.destination;
 
-    // Potential optimizations:
-    // - A* might find the shortest path sooner and (by changing `history` to be some sparse map)
-    // with a smaller history requirement.
-    //
-    // Performed optimizations (assuming they are implemented correctly):
-    // - only the next generation of the automaton is strickly necessary;
-    // - `history` can be stored sparsely;
-    // - instead of a queue, it's possible to just scan the current generation (but the queue size
-    // is bounded by `2 * R * C`);
-
     let mut history = vec![OptHashMap::<Position, Movement>::default()];
+    // HACK: avoids special casing gen 0.
+    history[0].insert(source, Down);
 
     let mut best_pos = automaton.source;
+    let mut best_dist = best_pos.distance(&automaton.destination);
 
     for gen in 0..max_generations {
         if gen > 0 && gen % 100 == 0 {
-            // dbg!(gen, best_pos, history[gen].len(), history[gen].capacity());
-            eprintln!("{PPG}at gen={gen} best_pos={best_pos:?}");
-            if automaton.grid.width() == 2500 {
-                fs::write(format!("/tmp/tmp{gen}.txt"), format!("{automaton}\n")).unwrap();
-            }
+            eprintln!("{PPG}at gen={gen} best_pos={best_pos:?} best_dist={best_dist}");
         }
 
         let next_generation = automaton.next_generation();
-        history.push(OptHashMap::with_capacity_and_hasher(
-            history[gen].capacity(),
-            Default::default(),
-        ));
+        let mut next_history =
+            OptHashMap::with_capacity_and_hasher(history[gen].capacity(), Default::default());
 
-        for (i, j, cell) in automaton.grid.cells() {
-            let pos = Position { i, j };
+        let mut to_visit: Vec<_> = history[gen]
+            .keys()
+            .map(|&p| (p, p.distance(&automaton.destination)))
+            .collect();
+        to_visit.sort_unstable_by(|a, b| a.1.cmp(&b.1));
 
-            if cell
-                || (gen > 0 && history[gen].get(&pos).is_none())
-                || (gen == 0 && Position { i, j } != source)
-            {
-                continue;
-            }
+        for (pos, pos_dist) in to_visit.into_iter() {
+            debug_assert_eq!(automaton.green(pos), Some(false));
 
-            let pos_dist = pos.distance(&automaton.destination);
-            let best_dist = best_pos.distance(&automaton.destination);
             if pos_dist < best_dist {
                 best_pos = pos;
+                best_dist = pos_dist;
             } else if pos_dist > best_dist + max_pessimism {
                 // HACK: Bound the how much history we keep and, consequently, how much memory we
                 // use, by only considering moves closer to the destination. In a way this is a
                 // poor program's version of an A* algorithm.
-                // FIXME: should compare against last gen's best dist, not the best dist being
-                // updated in this generation.
-                // FIXME: replace with an actual A*.
                 continue;
             }
-
-            // eprintln!("forward: {gen} {i} {j}");
-            // dbg!(&history[gen]);
-            // dbg!(cell);
-            // dbg!(gen > 0 && history[gen].get(i, j).is_none());
-            // dbg!(gen == 0 && Position { i, j } != source);
 
             if pos == destination {
                 let (mut gen, mut pos) = (gen, pos);
                 let mut path = vec![];
+
+                // HACK: avoid accidental use of previous hacky insertion.
+                history[0].clear();
 
                 while gen > 0 {
                     // eprintln!("backward: {gen} {} {}", pos.i, pos.j);
@@ -235,14 +214,28 @@ fn find_path(
             for movement in [Up, Down, Left, Right] {
                 let next = pos.next(movement);
                 if let Some(false) = next_generation.green(next) {
-                    history[gen + 1].entry(next).or_insert(movement);
+                    next_history.entry(next).or_insert(movement);
                 }
             }
         }
 
+        if next_history.is_empty() {
+            eprintln!("path not found: no movement in gen={gen}");
+            let _ = fs::write(
+                format!("/tmp/stone-no-path-{}", gen),
+                format!("{automaton}\n"),
+            );
+            let _ = fs::write(
+                format!("/tmp/stone-no-path-{}", gen + 1),
+                format!("{next_generation}\n"),
+            );
+            return None;
+        }
         automaton = next_generation;
+        history.push(next_history);
     }
 
+    eprintln!("path not found: gen={max_generations}");
     None
 }
 
