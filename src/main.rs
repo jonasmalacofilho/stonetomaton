@@ -65,8 +65,10 @@ mod options;
 mod position;
 
 use std::fmt::Display;
+use std::fs;
 use std::hint::black_box;
 use std::io::{self, Read};
+use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
 use clap::Parser;
@@ -78,46 +80,88 @@ use crate::position::Position;
 
 type OptHashMap<K, V> = ahash::AHashMap<K, V>;
 
+const PCH: &str = "=> ";
+const PST: &str = "   ";
+const PPG: &str = "    - ";
+
 fn main() {
     let options = Options::parse();
 
-    let mut input = String::new();
-    io::stdin().read_to_string(&mut input).unwrap();
-
-    let mut automaton = parse(&input);
-    if options.immutable_endpoints {
-        automaton.immutable_endpoints = true;
-    }
-
     if options.bench_automaton {
         const ITERATIONS: usize = 150;
+
+        let mut input = String::new();
+        io::stdin().read_to_string(&mut input).unwrap();
+
+        let mut automaton = parse(&input);
+        if options.immutable_endpoints {
+            automaton.immutable_endpoints = true;
+        }
+
         let start = Instant::now();
         for _ in 0..ITERATIONS {
             automaton = automaton.next_generation();
         }
         black_box(&automaton);
+
         let throughput_value = start.elapsed().div_f64(ITERATIONS as f64);
         let throughput = 1. / throughput_value.as_secs_f64();
         let estimate_6200 = Duration::from_secs_f64(6200. / throughput);
         dbg!(throughput_value, throughput, estimate_6200);
+
         return;
     }
 
-    let path = find_path(
-        automaton.clone(),
-        options.max_generations,
-        options.max_pessimism,
-    )
-    .unwrap();
+    for challenge in options.challenges() {
+        eprintln!("{PCH}Solving challenge {challenge}");
 
-    println!("{}", path_to_string(&path));
-    eprintln!("{} movements", path.len());
+        let (input, output) = challenge_paths(challenge);
 
-    if options.check {
-        let lives_lost = lives_lost(&path, automaton);
-        eprintln!("{} lives lost", lives_lost);
-        assert_eq!(lives_lost, 0);
+        eprintln!("{PST}Reading input from {input:?}");
+        let input = fs::read_to_string(input).unwrap();
+        let mut automaton = parse(&input);
+
+        if challenge != 0 {
+            automaton.immutable_endpoints = true;
+        }
+
+        eprintln!("{PST}Path finding");
+        let path = match challenge {
+            0..=3 => find_path(
+                automaton.clone(),
+                options.max_generations,
+                options.max_pessimism,
+            )
+            .unwrap(),
+            _ => todo!(),
+        };
+        eprintln!("{PST}Path found: {} movements", path.len());
+
+        if options.check {
+            eprintln!("{PST}Checking");
+            let lives_lost = lives_lost(&path, automaton);
+            assert_eq!(lives_lost, 0); // FIXME
+            eprintln!("{PST}Passed: loses {} lives", lives_lost);
+        }
+
+        let mut path = path_to_string(&path);
+        path.push('\n');
+        eprintln!("{PST}Saving output to {output:?}");
+        fs::write(output, path).unwrap();
+
+        eprintln!();
     }
+}
+
+fn challenge_paths(number: u8) -> (PathBuf, PathBuf) {
+    let suffix = if number == 0 {
+        "".into()
+    } else {
+        number.to_string()
+    };
+    let input = format!("input{suffix}.txt");
+    let output = format!("output{suffix}.txt.auto");
+    (input.into(), output.into())
 }
 
 /// Reads the input and finds a path from  source to destination.
@@ -146,7 +190,8 @@ fn find_path(
 
     for gen in 0..max_generations {
         if gen > 0 && gen % 100 == 0 {
-            dbg!(gen, best_pos, history[gen].len(), history[gen].capacity());
+            // dbg!(gen, best_pos, history[gen].len(), history[gen].capacity());
+            eprintln!("{PPG}at gen={gen} best_pos={best_pos:?}");
         }
 
         let next_generation = automaton.next_generation();

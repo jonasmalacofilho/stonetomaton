@@ -1,10 +1,12 @@
 //! Position and movement in a 2-dimensional grid.
 
+use std::fmt::Debug;
+
 /// A position in a 2-dimensional grid.
 ///
 /// The `i` and `j` coordinates are signed integers, making it easier to deal with movements around
 /// `0`, which can result in negative coordinates.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Position {
     /// Row index.
     pub i: i16,
@@ -35,6 +37,12 @@ impl Position {
 
     pub fn distance(&self, other: &Position) -> u16 {
         self.i.abs_diff(other.i) + self.j.abs_diff(other.j)
+    }
+}
+
+impl Debug for Position {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("{},{}", self.i, self.j))
     }
 }
 
