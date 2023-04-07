@@ -18,7 +18,7 @@ pub struct Options {
     pub max_generations: usize,
 
     /// Ignore arcs `LIMIT` moves worse than current best estimate.
-    #[arg(long, value_name = "LIMIT", default_value_t = 50)]
+    #[arg(long, value_name = "LIMIT", default_value_t = 50_000)]
     pub max_pessimism: u16,
 
     /// Check the resulting path(s).
