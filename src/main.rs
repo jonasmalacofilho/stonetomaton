@@ -1,25 +1,24 @@
-//! Find a path in a 2-D automaton.
+//! Find paths in 2-D-automaton mazes.
 //!
 //! # High-level overview
 //!
-//! Finds a path from a source to a destination in an 2-dimensional automaton, moving one cell at a
-//! time, either horizontally or vertically, and only passing through cells that are at that time
-//! white.
+//! This program finds paths in 2-dimensional automata, moving horizontally or vertically one cell
+//! at a time, and only passing through dead (white) cells.
 //!
-//! The problem is conceptually equivalent to finding a path in a 3-dimensional lattice, that
-//! infinitely grows in a generation axis, and where each layer is a generation of the automaton.
-//! The agent moving from the source to the destination must move in the generation axis in unit
-//! (1) steps.
+//! The problem is conceptually equivalent to finding paths in 3-dimensional lattices that grow
+//! infinitely in the generation axis, and where each layer is one generation of the corresponding
+//! automaton.
+//!
+//! The agent (particle) going from the source to the destination must move in the generation
+//! axis in unit (1) steps, and must do so at every generation.
 //!
 //! # Implementation notes
 //!
-//! While the rules of the challenge don't require that the path be optimal, computing the shortest
-//! path using a breadth-first search is desirable because it bounds the generations that must be
-//! computed to a finite number, as long any path exists. If a simpler depth-first search were
-//! used, it could infinitely recurse even when a finite path existed.
+//! In short, it's quite messy, full of incomplete and inconsistent APIs, and with a bunch of hacks
+//! (or non-general heuristics, if you prefer to think of them like that).
 //!
-//! Additionally, the 3-dimensional graph resulting from the problem, as described in the
-//! "High-level overview", has a few interesting properties:
+//! That said, the 3-dimensional lattice described in the "High-level overview" has a few
+//! interesting properties, which are leveraged in this program in several places.
 //!
 //! 1. Only cells in the subsequent generation can be reached from the cells in the current
 //! generation;
@@ -31,18 +30,43 @@
 //! then the first path found between `source` and `position` will be optimal, and the generation
 //! when that happens is the first when `position` is reachable from `source`.
 //!
-//! While it's sufficient for correctness to ensure that all cells in one generation are visited
-//! before any cells in the subsequent generation (property 3), a FIFO queue can result in  a
-//! performance improvement over scanning all cells in each generation to find those that have been
-//! reached so far. On the other hand, a min-heap, as used in Dijkstra's algorithm, isn't
-//! necessary: the restrictions in movement through the graph (property 1) already ensure that the
-//! simple FIFO order results in a priority queue by generation and, consequently, path length
-//! (property 2).
+//! As error messages will only be seen by the author---_me... hello there!_---panicking is
+//! liberally used, instead of the more complex error modeling and handling mechanisms that would
+//! be typically be found in production code.
 //!
-//! Finally, this program has a very narrow use case---it's a code challenge---and error messages
-//! will only be seen by the author---_Me. Hello there!_---For simplicity, panicking and
-//! `unwrap`/`expect` are liberally used, instead of the more complex error modeling and handling
-//! mechanisms that would be typically be found in production code.
+//! # Challenge notes
+//!
+//! This program will by default (try to) solve all challenges. See `--help` for options that,
+//! among other things, allow solving only one specific challenge.
+//!
+//! ## Challenge 1
+//!
+//! Finds an optimal (shortest) path from source to destination.
+//!
+//! ## Challenges 2 and 3
+//!
+//! Finds a path from source to destination. Extra lives and individuality are currently *not*
+//! used. The path found is therefore expected to be suboptimal, but, in practice, it's within ~50%
+//! of the orthogonal distance (and, therefore, from the best possible path).
+//!
+//! ## Challenge 4
+//!
+//! As the grid is larger, the algorithm used in the previous challenges had to be changed to
+//! optimize for memory usage, instead of CPU time. And somewhere along the way I must also have
+//! done something wrong, since it can't find any paths (at least at the time of writing this)...
+//!
+//! The puzzle was another issue: while it was reasonably simple to solve using a general *natural*
+//! intelligence (me), an algorithmic solution for it is still to-do.
+//!
+//! ## Challenge 5
+//!
+//! I have some ideas, but none are particular advanced, and I wont have time to implement them. So
+//! just compute one path and get one particle on the grid.
+//!
+//! ## Challenge 0 (extra)
+//!
+//! This is kept from the previous level (1), question 2. In practice, it's a lot faster and,
+//! therefore, very useful to quickly check that changes don't regress behavior or performance.
 //!
 //! # Build, test and execute
 //!
@@ -232,7 +256,7 @@ pub fn find_path(
     Err(assemble_path(&history, best_gen, best_pos))
 }
 
-/// Finds a path from a source to a destination.
+/// Finds a path from a source to a destination, optimized for the worst case.
 ///
 /// Generally slower than [`find_path`], but the memory usage only depend on the number of
 /// generations required to reach the destination, which can be benefetial if a lot of backtracking
@@ -338,7 +362,7 @@ fn assemble_path_from_sets(
 }
 
 /// Returns the space-separated list of movements as a string.
-fn path_to_string(path: &[Movement]) -> String {
+pub fn path_to_string(path: &[Movement]) -> String {
     if path.is_empty() {
         return String::new();
     }
@@ -449,7 +473,7 @@ fn parse_allow_indeterminate(s: &str, (xi, xj): (Range<i16>, Range<i16>)) -> Aut
     }
 }
 
-fn lives_lost(path: &[Movement], mut automaton: Automaton) -> usize {
+pub fn lives_lost(path: &[Movement], mut automaton: Automaton) -> usize {
     let mut current = automaton.source;
     let mut lost = 0;
 
@@ -554,8 +578,6 @@ mod main_tests {
             0 0 1 1 0 0\n\
             0 0 0 0 0 4";
         const GOLDEN_LENGTH: usize = 14;
-        // const GOLDEN_OUTPUT1: &str = "D U D U D D R R R D R L R R";
-        // const GOLDEN_OUTPUT2: &str = "D U D U D D R R R R D L R R";
 
         let automaton = parse(INPUT);
         let path = find_path(automaton.clone(), MAX_GENERATIONS, MAX_PESSIMISM).unwrap();
@@ -627,8 +649,7 @@ mod main_tests {
             #[test]
             #[ignore]
             fn challenge2() {
-                const GOLDEN_LENGTH: usize = 6264; // FIXME: suboptimal, unchecked, ~810 s, ~21 GiB.
-                                                   // score >= 957
+                const GOLDEN_LENGTH: usize = 6264; // FIXME: suboptimal
 
                 let input = fs::read_to_string("input2.txt").unwrap();
                 let mut automaton = parse(&input);
@@ -648,8 +669,7 @@ mod main_tests {
             #[test]
             #[ignore]
             fn challenge3() {
-                const GOLDEN_LENGTH: usize = 6200; // FIXME: suboptimal, unchecked, ~820 s, ~17? GiB.
-                                                   // score >= 967
+                const GOLDEN_LENGTH: usize = 6200; // FIXME: suboptimal
 
                 let input = fs::read_to_string("input3.txt").unwrap();
                 let mut automaton = parse(&input);

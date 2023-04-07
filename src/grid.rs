@@ -1,4 +1,6 @@
 //! A 2-dimensional grid.
+// FIXME: make it generic again and/or merge with BitGrid.
+// FIXME: pick either tuple or Position and use that everywhere.
 
 #![allow(dead_code)] // FIXME
 
@@ -40,14 +42,13 @@ impl Grid {
         self.width
     }
 
-    /// Returns a reference to the value in cell `(i, j)`, or `None` if `(i, j)` is not in bounds.
+    /// Returns the value in cell `(i,j)`, or `None` if `(i,j)` is not in bounds.
     pub fn get(&self, i: i16, j: i16) -> Option<bool> {
         let index = self.index(i, j)?;
         self.raw.get(index).copied()
     }
 
-    /// Returns a mutable reference to the value in cell `(i, j)`, or `None` if `(i, j)` is not in
-    /// bounds.
+    /// Sets cell `(i,j)` to `value`.
     pub fn set(&mut self, i: i16, j: i16, value: bool) {
         let index = self.index(i, j).unwrap();
         self.raw[index] = value;
@@ -72,9 +73,9 @@ impl Grid {
         })
     }
 
-    /// Count cells set to `true` in the Moore's neighborhood of `(i, j)`.
+    /// Count cells set to `true` in the Moore's neighborhood of `(i,j)`.
     ///
-    /// The grid does *not* wrap around the edges, and `(i, j)` must point to a cell within the
+    /// The grid does *not* wrap around the edges, and `(i,j)` must point to a cell within the
     /// grid (in other words, it must in bounds).
     pub fn count_neighbors(&self, i: i16, j: i16) -> u8 {
         assert!(self.index(i, j).is_some());

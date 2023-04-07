@@ -1,6 +1,6 @@
-# Find a path in a 2-D automaton
+# Find paths in 2-D-automaton mazes
 
-For a high-level overview, the implementation notes, and other information, see the module-level
+For a high-level overview, some implementation notes, and other information, see the module-level
 documentation in [`src/main.rs`].
 
 [`src/main.rs`]: ./src/main.rs
