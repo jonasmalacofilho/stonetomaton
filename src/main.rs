@@ -129,7 +129,6 @@ fn main() {
             eprintln!("{STEP}Applying puzzle solution");
             let inner: Grid = puzzle::SOLUTION.parse().unwrap();
             automaton.grid.overwrite(&inner, 2300, 2300);
-            fs::write("/tmp/tmp.txt", format!("{automaton}\n")).unwrap();
         }
 
         eprintln!("{STEP}Path finding");
