@@ -61,37 +61,35 @@
 //! [Jonas Malaco]: https://github.com/jonasmalacofilho
 
 mod grid;
+mod options;
 mod position;
 
-use std::collections::HashSet;
-use std::env;
 use std::fmt::Display;
 use std::hint::black_box;
 use std::io::{self, Read};
 use std::time::{Duration, Instant};
 
+use clap::Parser;
+
 use crate::grid::Grid;
+use crate::options::Options;
 use crate::position::Movement::{self, *};
 use crate::position::Position;
 
 type OptHashMap<K, V> = ahash::AHashMap<K, V>;
 
-const MAX_GENERATIONS: usize = 50_000;
-const MAX_EXPECTED_GENERATIONS: usize = 10_000;
-const MAX_PESSIMISM: u16 = 50_000;
-
 fn main() {
-    let mut args: HashSet<_> = env::args().skip(1).collect();
+    let options = Options::parse();
 
     let mut input = String::new();
     io::stdin().read_to_string(&mut input).unwrap();
 
     let mut automaton = parse(&input);
-    if args.remove("--immutable-endpoints") {
+    if options.immutable_endpoints {
         automaton.immutable_endpoints = true;
     }
 
-    if args.remove("--bench-automaton") {
+    if options.bench_automaton {
         const ITERATIONS: usize = 150;
         let start = Instant::now();
         for _ in 0..ITERATIONS {
@@ -105,18 +103,21 @@ fn main() {
         return;
     }
 
-    let path = find_path(automaton.clone(), MAX_GENERATIONS, MAX_PESSIMISM).unwrap();
+    let path = find_path(
+        automaton.clone(),
+        options.max_generations,
+        options.max_pessimism,
+    )
+    .unwrap();
 
     println!("{}", path_to_string(&path));
     eprintln!("{} movements", path.len());
 
-    if args.remove("--check") {
+    if options.check {
         let lives_lost = lives_lost(&path, automaton);
         eprintln!("{} lives lost", lives_lost);
         assert_eq!(lives_lost, 0);
     }
-
-    assert_eq!(args, HashSet::new());
 }
 
 /// Reads the input and finds a path from  source to destination.
@@ -359,6 +360,9 @@ mod main_tests {
     use std::fs;
 
     use super::*;
+
+    const MAX_GENERATIONS: usize = 50_000;
+    const MAX_PESSIMISM: u16 = 50;
 
     fn validade_path_format(path: &str) {
         for (gen, movement) in path.split(' ').enumerate() {

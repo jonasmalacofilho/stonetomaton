@@ -10,6 +10,7 @@ publish = false
 
 [dependencies]
 ahash = { version = "0.8.3", default-features = false, features = ["std", "no-rng"] }
+clap = { version = "4.2.1", features = ["derive"] }
 
 [profile.release]
 codegen-units = 1
