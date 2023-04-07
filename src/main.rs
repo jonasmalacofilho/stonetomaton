@@ -530,6 +530,23 @@ mod main_tests {
     }
 
     #[test]
+    fn one_generation_with_immutable_endpoints() {
+        const INPUT: &str = "\
+            1 1 1 0\n\
+            3 1 4 1\n\
+            0 1 1 0";
+        const EXPECTED: &str = "\
+            0 0 0 1\n\
+            0 1 0 0\n\
+            1 0 0 1";
+
+        let mut initial = parse(INPUT);
+        initial.immutable_endpoints = true;
+        let second = initial.next_generation();
+        assert_eq!(second.to_string(), EXPECTED);
+    }
+
+    #[test]
     fn shortest_path() {
         const INPUT: &str = "\
             3 0 0 1 0 0\n\
