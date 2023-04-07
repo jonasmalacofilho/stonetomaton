@@ -14,11 +14,11 @@ pub struct Options {
     pub with_inner_code: Option<u128>,
 
     /// Stop before `LIMIT` generations.
-    #[arg(long, value_name = "LIMIT", default_value_t = 50_000)]
+    #[arg(short = 'G', long, value_name = "LIMIT", default_value_t = 50_000)]
     pub max_generations: usize,
 
     /// Ignore arcs `LIMIT` moves worse than current best estimate.
-    #[arg(long, value_name = "LIMIT", default_value_t = 50_000)]
+    #[arg(short = 'P', long, value_name = "LIMIT", default_value_t = 50_000)]
     pub max_pessimism: u16,
 
     /// Check the resulting path(s).
