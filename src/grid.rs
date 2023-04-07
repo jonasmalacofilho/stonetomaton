@@ -1,5 +1,7 @@
 //! A 2-dimensional grid.
 
+#![allow(dead_code)] // FIXME
+
 use std::fmt::{Display, Write};
 use std::iter;
 use std::str::FromStr;

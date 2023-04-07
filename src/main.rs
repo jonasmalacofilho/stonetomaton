@@ -60,16 +60,16 @@
 //!
 //! [Jonas Malaco]: https://github.com/jonasmalacofilho
 
+mod challenge4;
 mod grid;
 mod options;
 mod position;
 
 use std::fmt::Display;
 use std::fs;
-use std::hint::black_box;
-use std::io::{self, Read};
+use std::ops::{Range, RangeInclusive};
 use std::path::PathBuf;
-use std::time::{Duration, Instant};
+use std::str::FromStr;
 
 use clap::Parser;
 
@@ -94,34 +94,74 @@ fn main() {
 
         eprintln!("{PST}Reading input from {input:?}");
         let input = fs::read_to_string(input).unwrap();
-        let mut automaton = parse(&input);
-
+        let mut automaton = parse_allow_indeterminate(&input, (2300..2310, 2300..2310));
         if challenge != 0 {
             automaton.immutable_endpoints = true;
         }
 
         eprintln!("{PST}Path finding");
         let path = match challenge {
-            0..=3 => find_path(
-                automaton.clone(),
-                options.max_generations,
-                options.max_pessimism,
-            )
-            .unwrap(),
-            _ => todo!(),
+            0..=3 | 5 => {
+                let path = find_path(
+                    automaton.clone(),
+                    options.max_generations,
+                    options.max_pessimism,
+                )
+                .unwrap();
+                eprintln!("{PST}Path found: {} movements", path.len());
+
+                if options.check {
+                    eprintln!("{PST}Checking");
+                    let lives_lost = lives_lost(&path, automaton);
+                    assert_eq!(lives_lost, 0); // FIXME
+                    eprintln!("{PST}Passed: loses {} lives", lives_lost);
+                }
+
+                path
+            }
+            4 => {
+                let mut candidates = challenge4::find_paths(
+                    &automaton,
+                    options.with_inner_code,
+                    options.max_generations,
+                    options.max_pessimism,
+                );
+                let mut best = 0;
+                for (i, (code, _, path)) in candidates.iter().enumerate() {
+                    eprintln!(
+                        "{PST}Path found: {} movements using inner grid {}",
+                        path.len(),
+                        *code
+                    );
+                    if path.len() < candidates[best].2.len() {
+                        best = i;
+                    }
+                }
+
+                let (code, _, path) = candidates.remove(best);
+                eprintln!(
+                    "{PST}Best path: {} movements using inner grid {}",
+                    path.len(),
+                    code
+                );
+
+                if options.check {
+                    eprintln!("{PST}Checking");
+                    todo!();
+                }
+
+                path
+            }
+            _ => unimplemented!(),
         };
-        eprintln!("{PST}Path found: {} movements", path.len());
 
-        if options.check {
-            eprintln!("{PST}Checking");
-            let lives_lost = lives_lost(&path, automaton);
-            assert_eq!(lives_lost, 0); // FIXME
-            eprintln!("{PST}Passed: loses {} lives", lives_lost);
-        }
-
-        let mut path = path_to_string(&path);
-        path.push('\n');
         eprintln!("{PST}Saving output to {output:?}");
+        let mut path = path_to_string(&path);
+        if challenge == 5 {
+            // FIXME: HACK.
+            path.insert_str(0, "0 ");
+        }
+        path.push('\n');
         fs::write(output, path).unwrap();
 
         eprintln!();
@@ -254,7 +294,7 @@ fn path_to_string(path: &[Movement]) -> String {
 
 /// The automaton.
 #[derive(Debug, Clone)]
-struct Automaton {
+pub struct Automaton {
     grid: Grid,
     source: Position,
     destination: Position,
@@ -302,49 +342,54 @@ impl Display for Automaton {
 
 /// Parses the input.
 fn parse(s: &str) -> Automaton {
+    parse_allow_indeterminate(s, (0..0, 0..0))
+}
+
+fn parse_allow_indeterminate(s: &str, (xi, xj): (Range<i16>, Range<i16>)) -> Automaton {
     let mut source = None;
     let mut destination = None;
 
-    let grid: Vec<Vec<_>> = s
+    let tmp: Vec<Vec<_>> = s
         .lines()
         .enumerate()
         .map(|(i, line)| {
-            line.split_whitespace()
+            line.split(' ')
                 .enumerate()
                 .map(|(j, cell)| {
-                    let cell = cell
-                        .parse::<u8>()
-                        .unwrap_or_else(|_| panic!("could not parse cell `{cell}` at ({i}, {j})"));
-
-                    if cell == 1 {
-                        return true;
-                    }
-
-                    let pos = Some(Position {
+                    let pos = Position {
                         i: i.try_into()
                             .unwrap_or_else(|_| panic!("unexpectedly high row index {i}")),
                         j: j.try_into()
                             .unwrap_or_else(|_| panic!("unexpectedly high column index {j}")),
-                    });
+                    };
 
-                    if cell == 3 {
-                        source = pos;
-                    } else if cell == 4 {
-                        destination = pos;
+                    match cell {
+                        "0" => false,
+                        "1" => true,
+                        "3" => {
+                            source = Some(pos);
+                            false
+                        }
+                        "4" => {
+                            destination = Some(pos);
+                            false
+                        }
+                        "x" => {
+                            assert!(xi.contains(&pos.i) && xj.contains(&pos.j));
+                            false
+                        }
+                        _ => panic!("could not parse cell `{cell}` at ({i}, {j})"),
                     }
-
-                    false
                 })
                 .collect()
         })
         .collect();
-
-    let grid = Grid::from_nested_vecs(grid);
+    let grid = Grid::from_nested_vecs(tmp);
 
     Automaton {
         grid,
-        source: source.unwrap(),
-        destination: destination.unwrap(),
+        source: source.expect("missing source"),
+        destination: destination.expect("missing destination"),
         immutable_endpoints: false,
     }
 }
