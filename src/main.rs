@@ -172,7 +172,7 @@ fn find_path(
     let mut best_gen = 0;
 
     for gen in 0..max_generations {
-        if (gen + 1) % 100 == 0 {
+        if gen != 0 && gen % 100 == 0 {
             eprintln!("{PPG}gen={gen} best_pos={best_pos:?} best_dist={best_dist}");
         }
 
