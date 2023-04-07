@@ -82,6 +82,7 @@ type OptHashMap<K, V> = ahash::AHashMap<K, V>;
 const PCH: &str = "=> ";
 const PST: &str = "   ";
 const PPG: &str = "    - ";
+const PAL: &str = "(W) - ";
 
 fn main() {
     let options = Options::parse();
@@ -106,20 +107,26 @@ fn main() {
         }
 
         eprintln!("{PST}Path finding");
-        let path = find_path(
+        let path = match find_path(
             automaton.clone(),
             options.max_generations,
             options.max_pessimism,
-        )
-        .unwrap();
-        eprintln!("{PST}Path found: {} movements", path.len());
-
-        if options.check {
-            eprintln!("{PST}Checking");
-            let lives_lost = lives_lost(&path, automaton);
-            assert_eq!(lives_lost, 0); // FIXME
-            eprintln!("{PST}Passed: loses {} lives", lives_lost);
-        }
+        ) {
+            Ok(path) => {
+                eprintln!("{PST}Path found: {} movements", path.len());
+                if options.check {
+                    eprintln!("{PST}Checking");
+                    let lives_lost = lives_lost(&path, automaton);
+                    assert_eq!(lives_lost, 0); // FIXME
+                    eprintln!("{PST}Passed: loses {} lives", lives_lost);
+                }
+                path
+            }
+            Err(best_attempt) => {
+                eprintln!("{PST}Best attempt found: {} movements", best_attempt.len());
+                best_attempt
+            }
+        };
 
         eprintln!("{PST}Saving output to {output:?}");
         let mut path = path_to_string(&path);
@@ -151,21 +158,39 @@ fn find_path(
     mut automaton: Automaton,
     max_generations: usize,
     max_pessimism: u16,
-) -> Option<Vec<Movement>> {
+) -> Result<Vec<Movement>, Vec<Movement>> {
+    fn assemble_path(
+        history: &[OptHashMap<Position, Movement>],
+        mut gen: usize,
+        mut pos: Position,
+    ) -> Vec<Movement> {
+        let mut path = vec![];
+        while gen > 0 {
+            let movement = history[gen][&pos];
+            path.push(movement);
+            pos = pos.previous(movement);
+            gen -= 1;
+        }
+        path.reverse();
+        path
+    }
+
     let source = automaton.source;
     let destination = automaton.destination;
 
     let mut history = vec![OptHashMap::<Position, Movement>::default()];
+
     // HACK: avoids special casing gen 0.
     history[0].insert(source, Down);
 
     let mut best_pos = automaton.source;
     let mut best_dist = best_pos.distance(&automaton.destination);
+    let mut best_gen = 0;
 
     for gen in 0..max_generations {
-        if gen > 0 && gen % 100 == 0 {
+        if (gen + 1) % 100 == 0 {
             eprintln!(
-                "{PPG}at gen={} best_pos={:?} best_dist={} hist_len={} hist_cap={}",
+                "{PPG}gen={} best_pos={:?} best_dist={} hist_len={} hist_cap={}",
                 gen,
                 best_pos,
                 best_dist,
@@ -180,24 +205,7 @@ fn find_path(
 
         for &pos in history[gen].keys() {
             if pos == destination {
-                let (mut gen, mut pos) = (gen, pos);
-                let mut path = vec![];
-
-                // HACK: avoid accidental use of previous hacky insertion.
-                history[0].clear();
-
-                while gen > 0 {
-                    // eprintln!("backward: {gen} {} {}", pos.i, pos.j);
-
-                    let movement = history[gen][&pos];
-                    path.push(movement);
-
-                    pos = pos.previous(movement);
-                    gen -= 1;
-                }
-
-                path.reverse();
-                return Some(path);
+                return Ok(assemble_path(&history, gen, pos));
             }
 
             for movement in [Up, Down, Left, Right] {
@@ -207,6 +215,7 @@ fn find_path(
                     if dist < best_dist {
                         best_pos = next;
                         best_dist = dist;
+                        best_gen = gen + 1;
                     } else if dist > best_dist + max_pessimism {
                         // HACK: Bound how much history we keep and, consequently, how much memory
                         // we use, by only considering moves closer to the destination. In a way
@@ -219,7 +228,7 @@ fn find_path(
         }
 
         if next_history.is_empty() {
-            eprintln!("path not found: no movement in gen={gen}");
+            eprintln!("{PAL}No movement in gen={gen}");
             let _ = fs::write(
                 format!("/tmp/stone-no-path-{}", gen),
                 format!("{automaton}\n"),
@@ -228,15 +237,16 @@ fn find_path(
                 format!("/tmp/stone-no-path-{}", gen + 1),
                 format!("{next_generation}\n"),
             );
-            return None;
+            break;
         }
 
         automaton = next_generation;
         history.push(next_history);
     }
 
-    eprintln!("path not found: gen={max_generations}");
-    None
+    eprintln!("{PAL}Failed to reach the destination (distance={best_dist})");
+    assert!(best_gen > 0);
+    Err(assemble_path(&history, best_gen, best_pos))
 }
 
 /// Returns the space-separated list of movements as a string.
