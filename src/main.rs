@@ -453,10 +453,10 @@ mod main_tests {
     #[test]
     fn shortest_path() {
         const INPUT: &str = "\
-3 0 0 1 0 0
-0 1 1 0 1 1
-0 0 1 1 0 0
-0 0 0 0 0 4";
+            3 0 0 1 0 0\n\
+            0 1 1 0 1 1\n\
+            0 0 1 1 0 0\n\
+            0 0 0 0 0 4";
         const GOLDEN_LENGTH: usize = 14;
         // const GOLDEN_OUTPUT1: &str = "D U D U D D R R R D R L R R";
         // const GOLDEN_OUTPUT2: &str = "D U D U D D R R R R D L R R";
