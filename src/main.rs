@@ -60,6 +60,7 @@
 //!
 //! [Jonas Malaco]: https://github.com/jonasmalacofilho
 
+mod bitgrid;
 mod grid;
 mod options;
 mod position;
@@ -72,13 +73,13 @@ use std::path::PathBuf;
 
 use clap::Parser;
 
+use crate::bitgrid::BitGrid;
 use crate::grid::Grid;
 use crate::options::Options;
 use crate::position::Movement::{self, *};
 use crate::position::Position;
 
 type OptHashMap<K, V> = ahash::AHashMap<K, V>;
-type OptHashSet<T> = ahash::AHashSet<T>;
 
 const CHAL: &str = "=> ";
 const STEP: &str = "   ";
@@ -109,12 +110,12 @@ fn main() {
 
         eprintln!("{STEP}Path finding");
         let path = match challenge {
-            0 | 4 => find_path_robust(automaton.clone(), options.max_generations),
-            _ => find_path(
+            0..=3 | 5 => find_path(
                 automaton.clone(),
                 options.max_generations,
                 options.max_pessimism,
             ),
+            _ => find_path_robust(automaton.clone(), options.max_generations),
         };
 
         let path = match path {
@@ -161,9 +162,11 @@ fn challenge_paths(number: u8) -> (PathBuf, PathBuf) {
 /// Finds a path from a source to a destination.
 ///
 /// The `max_pessimism` (roughly equivalent to how much backtracking is allowed) can result in huge
-/// savings in space and time. However, in some cases no path can be found unless `max_pessimism`
-/// is set to really high values, which in turn results in excessive space use; in those instances
-/// [`find_path_robust`] is recommended instead.
+/// savings in space and time, in comparison to [`find_path_robust`].
+///
+/// On the other hand, the path returned may be suboptimal or, in some cases, no path might be
+/// found unless `max_pessimism` is set to really high values, which in turn results in excessive
+/// (instead of reduced) memory usage.
 pub fn find_path(
     mut automaton: Automaton,
     max_generations: usize,
@@ -231,9 +234,9 @@ pub fn find_path(
 
 /// Finds a path from a source to a destination.
 ///
-/// Generally slower than [`find_path`], but the space requirements only depend on the number of
+/// Generally slower than [`find_path`], but the memory usage only depend on the number of
 /// generations required to reach the destination, which can be benefetial if a lot of backtracking
-/// is required.
+/// is required to find the (best or only) path.
 pub fn find_path_robust(
     mut automaton: Automaton,
     max_generations: usize,
@@ -243,7 +246,10 @@ pub fn find_path_robust(
     let source = automaton.source;
     let destination = automaton.destination;
 
-    let mut history = vec![OptHashSet::<Position>::default()];
+    let mut history = vec![BitGrid::new(
+        automaton.grid.height(),
+        automaton.grid.width(),
+    )];
 
     // HACK: avoids special casing gen 0.
     history[0].insert(source);
@@ -258,10 +264,9 @@ pub fn find_path_robust(
         }
 
         let next_generation = automaton.next_generation();
-        let mut next_history =
-            OptHashSet::with_capacity_and_hasher(history[gen].capacity(), Default::default());
+        let mut next_history = BitGrid::with_dim_from(&history[gen]);
 
-        for &pos in history[gen].iter() {
+        for pos in history[gen].iter() {
             if pos == destination {
                 return Ok(assemble_path_from_sets(&history, gen, pos));
             }
@@ -311,7 +316,7 @@ fn assemble_path(
 }
 
 fn assemble_path_from_sets(
-    history: &[OptHashSet<Position>],
+    history: &[BitGrid],
     mut gen: usize,
     mut pos: Position,
 ) -> Vec<Movement> {
@@ -319,7 +324,7 @@ fn assemble_path_from_sets(
     'outer: while gen > 0 {
         for movement in [Up, Down, Left, Right] {
             let prev = pos.previous(movement);
-            if history[gen - 1].contains(&prev) {
+            if history[gen - 1].contains(prev) {
                 path.push(movement);
                 gen -= 1;
                 pos = prev;
