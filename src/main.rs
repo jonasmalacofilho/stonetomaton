@@ -203,6 +203,11 @@ fn find_path(
             }
         }
 
+        if next_history.is_empty() {
+            eprintln!("{PAL}No movement in gen={gen}");
+            break;
+        }
+
         automaton = next_generation;
         history.push(next_history);
     }
