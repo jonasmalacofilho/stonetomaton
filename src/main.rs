@@ -70,13 +70,15 @@ use std::hint::black_box;
 use std::io::{self, Read};
 use std::time::{Duration, Instant};
 
-type OptHashMap<K, V> = ahash::AHashMap<K, V>;
-
 use crate::grid::Grid;
 use crate::position::Movement::{self, *};
 use crate::position::Position;
 
-const MAX_GENERATIONS: usize = 100_000;
+type OptHashMap<K, V> = ahash::AHashMap<K, V>;
+
+const MAX_GENERATIONS: usize = 50_000;
+const MAX_EXPECTED_GENERATIONS: usize = 10_000;
+const MAX_PESSIMISM: u16 = 50_000;
 
 fn main() {
     let mut args: HashSet<_> = env::args().skip(1).collect();
@@ -103,7 +105,7 @@ fn main() {
         return;
     }
 
-    let path = find_path(automaton.clone());
+    let path = find_path(automaton.clone(), MAX_GENERATIONS, MAX_PESSIMISM).unwrap();
 
     println!("{}", path_to_string(&path));
     eprintln!("{} movements", path.len());
@@ -119,7 +121,11 @@ fn main() {
 
 /// Reads the input and finds a path from  source to destination.
 // See "Implementation notes" in the top-level module documentation for more information.
-fn find_path(mut automaton: Automaton) -> Vec<Movement> {
+fn find_path(
+    mut automaton: Automaton,
+    max_generations: usize,
+    max_pessimism: u16,
+) -> Option<Vec<Movement>> {
     let source = automaton.source;
     let destination = automaton.destination;
 
@@ -137,9 +143,7 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
 
     let mut best_pos = automaton.source;
 
-    for gen in 0.. {
-        assert!(gen <= MAX_GENERATIONS);
-
+    for gen in 0..max_generations {
         if gen > 0 && gen % 100 == 0 {
             dbg!(gen, best_pos, history[gen].len(), history[gen].capacity());
         }
@@ -164,7 +168,7 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
             let best_dist = best_pos.distance(&automaton.destination);
             if pos_dist < best_dist {
                 best_pos = pos;
-            } else if pos_dist > best_dist + 50 {
+            } else if pos_dist > best_dist + max_pessimism {
                 // HACK: Bound the how much history we keep and, consequently, how much memory we
                 // use, by only considering moves closer to the destination. In a way this is a
                 // poor program's version of an A* algorithm.
@@ -195,7 +199,7 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
                 }
 
                 path.reverse();
-                return path;
+                return Some(path);
             }
 
             for movement in [Up, Down, Left, Right] {
@@ -209,7 +213,7 @@ fn find_path(mut automaton: Automaton) -> Vec<Movement> {
         automaton = next_generation;
     }
 
-    unreachable!();
+    None
 }
 
 /// Returns the space-separated list of movements as a string.
@@ -409,7 +413,7 @@ mod main_tests {
         // const GOLDEN_OUTPUT2: &str = "D U D U D D R R R R D L R R";
 
         let automaton = parse(INPUT);
-        let path = find_path(automaton.clone());
+        let path = find_path(automaton.clone(), MAX_GENERATIONS, MAX_PESSIMISM).unwrap();
 
         assert_eq!(lives_lost(&path, automaton), 0);
         assert_eq!(path.len(), GOLDEN_LENGTH);
@@ -431,7 +435,7 @@ mod main_tests {
                 let input = fs::read_to_string("input.txt").unwrap();
                 let automaton = parse(&input);
 
-                let path = find_path(automaton.clone());
+                let path = find_path(automaton.clone(), MAX_GENERATIONS, MAX_PESSIMISM).unwrap();
                 assert_eq!(lives_lost(&path, automaton), 0);
                 assert_eq!(path.len(), GOLDEN_LENGTH);
 
@@ -451,7 +455,7 @@ mod main_tests {
                 let mut automaton = parse(&input);
                 automaton.immutable_endpoints = true;
 
-                let path = find_path(automaton.clone());
+                let path = find_path(automaton.clone(), MAX_GENERATIONS, MAX_PESSIMISM).unwrap();
                 assert_eq!(lives_lost(&path, automaton), 0);
                 assert_eq!(path.len(), GOLDEN_LENGTH);
 
@@ -472,7 +476,7 @@ mod main_tests {
                 let mut automaton = parse(&input);
                 automaton.immutable_endpoints = true;
 
-                let path = find_path(automaton.clone());
+                let path = find_path(automaton.clone(), MAX_GENERATIONS, MAX_PESSIMISM).unwrap();
                 assert!(dbg!(lives_lost(&path, automaton)) <= 5);
                 assert!(dbg!(path.len()) <= GOLDEN_LENGTH);
 
@@ -493,7 +497,7 @@ mod main_tests {
                 let mut automaton = parse(&input);
                 automaton.immutable_endpoints = true;
 
-                let path = find_path(automaton.clone());
+                let path = find_path(automaton.clone(), MAX_GENERATIONS, MAX_PESSIMISM).unwrap();
                 assert_eq!(lives_lost(&path, automaton), 0);
                 assert!(dbg!(path.len()) <= GOLDEN_LENGTH);
 
