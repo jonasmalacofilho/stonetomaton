@@ -60,10 +60,10 @@
 //!
 //! [Jonas Malaco]: https://github.com/jonasmalacofilho
 
-mod challenge4;
 mod grid;
 mod options;
 mod position;
+mod puzzle;
 
 use std::fmt::Display;
 use std::fs;
@@ -101,7 +101,7 @@ fn main() {
 
         if challenge == 4 {
             eprintln!("{PST}Applying puzzle solution");
-            let inner: Grid = challenge4::PUZZLE_SOLUTION.parse().unwrap();
+            let inner: Grid = puzzle::SOLUTION.parse().unwrap();
             automaton.grid.overwrite(&inner, 2300, 2300);
             fs::write("/tmp/tmp.txt", format!("{automaton}\n")).unwrap();
         }
