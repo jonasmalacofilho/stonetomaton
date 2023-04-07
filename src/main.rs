@@ -148,7 +148,7 @@ fn challenge_paths(number: u8) -> (PathBuf, PathBuf) {
         number.to_string()
     };
     let input = format!("input{suffix}.txt");
-    let output = format!("output{suffix}.txt.auto");
+    let output = format!("output{suffix}.txt");
     (input.into(), output.into())
 }
 
@@ -503,7 +503,7 @@ mod main_tests {
                 validade_path_format(&path);
 
                 path.push('\n');
-                fs::write("output1.txt.candidate", path).unwrap();
+                fs::write("output1.txt.test", path).unwrap();
             }
 
             #[test]
@@ -524,7 +524,7 @@ mod main_tests {
                 validade_path_format(&path);
 
                 path.push('\n');
-                fs::write("output2.txt.candidate", path).unwrap();
+                fs::write("output2.txt.test", path).unwrap();
             }
 
             #[test]
@@ -545,7 +545,7 @@ mod main_tests {
                 validade_path_format(&path);
 
                 path.push('\n');
-                fs::write("output3.txt.candidate", path).unwrap();
+                fs::write("output3.txt.test", path).unwrap();
             }
         }
     }
