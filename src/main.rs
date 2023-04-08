@@ -122,7 +122,9 @@ fn main() {
         let mut automaton = parse_allow_indeterminate(&input, (2300..2310, 2300..2310));
         if challenge != 0 {
             automaton.immutable_endpoints = true;
+            eprintln!("{INFO}immutable_endpoints={}", automaton.immutable_endpoints);
         }
+        eprintln!("{INFO}immutable_endpoints={}", automaton.immutable_endpoints);
 
         if challenge == 4 {
             eprintln!("{STEP}Applying puzzle solution");
