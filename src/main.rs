@@ -224,6 +224,8 @@ pub fn find_path(
             OptHashMap::with_capacity_and_hasher(history[gen].capacity(), Default::default());
 
         for &pos in history[gen].keys() {
+            debug_assert_eq!(automaton.alive(pos), Some(false));
+
             if pos == destination {
                 return Ok(assemble_path(&history, gen, pos));
             }
@@ -295,6 +297,8 @@ pub fn find_path_robust(
         let mut next_history = BitGrid::with_dim_from(&history[gen]);
 
         for pos in history[gen].iter() {
+            debug_assert_eq!(automaton.alive(pos), Some(false));
+
             if pos == destination {
                 return Ok(assemble_path_from_sets(&history, gen, pos));
             }
