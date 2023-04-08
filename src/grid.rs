@@ -2,8 +2,6 @@
 // FIXME: make it generic again and/or merge with BitGrid.
 // FIXME: pick either tuple or Position and use that everywhere.
 
-#![allow(dead_code)] // FIXME
-
 use std::fmt::{Display, Write};
 use std::iter;
 use std::str::FromStr;
@@ -95,48 +93,6 @@ impl Grid {
             + helper(self, i, j, 1, 1)
     }
 
-    /// Rotate once, clockwise.
-    #[must_use]
-    pub fn rotate(&self) -> Self {
-        let mut grid = Grid {
-            height: self.width,
-            width: self.height,
-            raw: vec![false; self.raw.len()],
-        };
-
-        for (i, j, cell) in self.cells() {
-            grid.set(j, self.height - i - 1, cell);
-        }
-
-        grid
-    }
-
-    /// Flip once, horizontally.
-    ///
-    /// To flip vertically, rotate twice then flip horizontally.
-    #[must_use]
-    pub fn flip(&self) -> Self {
-        let mut grid = Grid {
-            raw: vec![false; self.raw.len()],
-            ..*self
-        };
-
-        for (i, j, cell) in self.cells() {
-            grid.set(i, self.width - j - 1, cell);
-        }
-
-        grid
-    }
-
-    /// Invert all cells.
-    #[must_use]
-    pub fn invert(&self) -> Self {
-        Grid {
-            raw: self.raw.iter().map(|&x| !x).collect(),
-            ..*self
-        }
-    }
-
     /// Overwrite part of `self`, starting at offset `(i, j)`, with cells from `other`.
     pub fn overwrite(&mut self, other: &Self, i: i16, j: i16) {
         for (x, y, cell) in other.cells() {
@@ -146,6 +102,7 @@ impl Grid {
 
     /// Extract part of `self`.
     #[must_use]
+    #[allow(dead_code)]
     pub fn extract(&self, i: i16, j: i16, height: i16, width: i16) -> Self {
         let mut grid = Grid::new(height, width);
         for x in 0..height {
@@ -156,6 +113,7 @@ impl Grid {
         grid
     }
 
+    #[allow(dead_code)]
     pub fn raw(&self) -> &[bool] {
         &self.raw
     }
@@ -306,49 +264,6 @@ mod tests {
             1 0 0";
         let grid: Grid = INITIAL.parse().unwrap();
         assert_eq!(grid.to_string(), INITIAL);
-    }
-
-    #[test]
-    fn rotate_once() {
-        const INITIAL: &str = "\
-            0 1 1 0\n\
-            1 1 0 0\n\
-            0 0 1 0";
-        const ROTATED: &str = "\
-            0 1 0\n\
-            0 1 1\n\
-            1 0 1\n\
-            0 0 0";
-        let grid: Grid = INITIAL.parse().unwrap();
-        assert_eq!(grid.rotate().to_string(), ROTATED);
-    }
-
-    #[test]
-    fn flip_horizontally_once() {
-        const INITIAL: &str = "\
-            0 1 1 0\n\
-            1 1 0 0\n\
-            0 0 1 0";
-        const FLIPPED: &str = "\
-            0 1 1 0\n\
-            0 0 1 1\n\
-            0 1 0 0";
-        let grid: Grid = INITIAL.parse().unwrap();
-        assert_eq!(grid.flip().to_string(), FLIPPED);
-    }
-
-    #[test]
-    fn invert() {
-        const INITIAL: &str = "\
-            0 1 1 0\n\
-            1 1 0 0\n\
-            0 0 1 0";
-        const INVERTED: &str = "\
-            1 0 0 1\n\
-            0 0 1 1\n\
-            1 1 0 1";
-        let grid: Grid = INITIAL.parse().unwrap();
-        assert_eq!(grid.invert().to_string(), INVERTED);
     }
 
     #[test]
