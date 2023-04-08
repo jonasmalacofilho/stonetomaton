@@ -205,10 +205,10 @@ pub fn find_path(
     let source = automaton.source;
     let destination = automaton.destination;
 
-    let mut history = vec![OptHashMap::<Position, Movement>::default()];
+    let mut reached = vec![OptHashMap::<Position, Movement>::default()];
 
     // HACK: avoids special casing gen 0.
-    history[0].insert(source, Down);
+    reached[0].insert(source, Down);
 
     let mut best_pos = automaton.source;
     let mut best_dist = best_pos.distance(&automaton.destination);
@@ -220,14 +220,14 @@ pub fn find_path(
         }
 
         let next_generation = automaton.next_generation();
-        let mut next_history =
-            OptHashMap::with_capacity_and_hasher(history[gen].capacity(), Default::default());
+        let mut to_visit =
+            OptHashMap::with_capacity_and_hasher(reached[gen].capacity(), Default::default());
 
-        for &pos in history[gen].keys() {
+        for &pos in reached[gen].keys() {
             debug_assert_eq!(automaton.alive(pos), Some(false));
 
             if pos == destination {
-                return Ok(assemble_path(&history, gen, pos));
+                return Ok(assemble_path(&reached, gen, pos));
             }
 
             for movement in [Up, Down, Left, Right] {
@@ -243,23 +243,23 @@ pub fn find_path(
                         // we need, by only considering moves near our current best position.
                         continue;
                     }
-                    next_history.entry(next).or_insert(movement);
+                    to_visit.entry(next).or_insert(movement);
                 }
             }
         }
 
-        if next_history.is_empty() {
+        if to_visit.is_empty() {
             eprintln!("{WARN}No movement in gen={gen}");
             break;
         }
 
         automaton = next_generation;
-        history.push(next_history);
+        reached.push(to_visit);
     }
 
     eprintln!("{WARN}Failed to reach the destination (distance={best_dist})");
     assert!(best_gen > 0);
-    Err(assemble_path(&history, best_gen, best_pos))
+    Err(assemble_path(&reached, best_gen, best_pos))
 }
 
 /// Finds a path from a source to a destination, optimized for the worst case.
@@ -276,13 +276,13 @@ pub fn find_path_robust(
     let source = automaton.source;
     let destination = automaton.destination;
 
-    let mut history = vec![BitGrid::new(
+    let mut reached = vec![BitGrid::new(
         automaton.grid.height(),
         automaton.grid.width(),
     )];
 
     // HACK: avoids special casing gen 0.
-    history[0].insert(source);
+    reached[0].insert(source);
 
     let mut best_pos = automaton.source;
     let mut best_dist = best_pos.distance(&automaton.destination);
@@ -294,13 +294,13 @@ pub fn find_path_robust(
         }
 
         let next_generation = automaton.next_generation();
-        let mut next_history = BitGrid::with_dim_from(&history[gen]);
+        let mut to_visit = BitGrid::with_dim_from(&reached[gen]);
 
-        for pos in history[gen].iter() {
+        for pos in reached[gen].iter() {
             debug_assert_eq!(automaton.alive(pos), Some(false));
 
             if pos == destination {
-                return Ok(assemble_path_from_sets(&history, gen, pos));
+                return Ok(assemble_path_from_sets(&reached, gen, pos));
             }
 
             for movement in [Up, Down, Left, Right] {
@@ -312,23 +312,23 @@ pub fn find_path_robust(
                         best_dist = dist;
                         best_gen = gen + 1;
                     }
-                    next_history.insert(next);
+                    to_visit.insert(next);
                 }
             }
         }
 
-        if next_history.is_empty() {
+        if to_visit.is_empty() {
             eprintln!("{WARN}No movement in gen={gen}");
             break;
         }
 
         automaton = next_generation;
-        history.push(next_history);
+        reached.push(to_visit);
     }
 
     eprintln!("{WARN}Failed to reach the destination (distance={best_dist})");
     assert!(best_gen > 0);
-    Err(assemble_path_from_sets(&history, best_gen, best_pos))
+    Err(assemble_path_from_sets(&reached, best_gen, best_pos))
 }
 
 fn assemble_path(
