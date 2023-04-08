@@ -81,3 +81,27 @@ impl Index<Position> for BitGrid {
         &self.raw[self.offset(index).unwrap()]
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn smoke_test() {
+        let mut grid = BitGrid::new(5, 10);
+
+        assert_eq!(grid.raw, BitGrid::with_dim_from(&grid).raw);
+
+        assert_eq!(grid.iter().collect::<Vec<_>>(), vec![]);
+        assert!(grid.raw.none());
+
+        grid.insert(Position { i: 4, j: 9 });
+        assert!(grid.contains(Position { i: 4, j: 9 }));
+        assert_eq!(
+            grid.iter().collect::<Vec<_>>(),
+            vec![Position { i: 4, j: 9 }]
+        );
+        assert!(grid.raw.any());
+        assert!(!grid.raw.all());
+    }
+}
