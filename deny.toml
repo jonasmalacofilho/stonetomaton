@@ -1,0 +1,5 @@
+[licenses]
+allow-osi-fsf-free = "either"
+unlicensed = "deny"
+copyleft = "deny"
+default = "deny"
