@@ -556,7 +556,7 @@ mod main_tests {
     }
 
     #[test]
-    fn one_generation_with_immutable_endpoints() {
+    fn immutable_endpoints() {
         const INPUT: &str = "\
             1 1 1 0\n\
             3 1 4 1\n\
@@ -566,10 +566,18 @@ mod main_tests {
             0 1 0 0\n\
             1 0 0 1";
 
-        let mut initial = parse(INPUT);
-        initial.immutable_endpoints = true;
-        let second = initial.next_generation();
-        assert_eq!(second.to_string(), EXPECTED);
+        let mut automaton = parse(INPUT);
+        automaton.immutable_endpoints = true;
+
+        automaton = automaton.next_generation();
+        assert_eq!(automaton.to_string(), EXPECTED);
+
+        for i in 0..10 {
+            automaton = automaton.next_generation();
+            dbg!(i, &automaton);
+            assert_eq!(automaton.alive(Position { i: 1, j: 0 }), Some(false));
+            assert_eq!(automaton.alive(Position { i: 1, j: 2 }), Some(false));
+        }
     }
 
     #[test]
