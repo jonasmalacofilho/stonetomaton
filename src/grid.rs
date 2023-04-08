@@ -77,7 +77,7 @@ impl Grid {
     ///
     /// The grid does *not* wrap around the edges, and `(i,j)` must point to a cell within the
     /// grid (in other words, it must in bounds).
-    pub fn count_neighbors(&self, i: i16, j: i16) -> u8 {
+    pub fn neighbors(&self, i: i16, j: i16) -> u8 {
         assert!(self.index(i, j).is_some());
 
         fn helper(grid: &Grid, i: i16, j: i16, addi: i16, addj: i16) -> u8 {
@@ -281,8 +281,8 @@ mod tests {
         let vecs = vec![vec![false, true, true], vec![true; 3], vec![true; 3]];
         let grid = Grid::from_nested_vecs(vecs);
 
-        assert_eq!(grid.count_neighbors(1, 1), 7);
-        assert_eq!(grid.count_neighbors(2, 2), 3);
+        assert_eq!(grid.neighbors(1, 1), 7);
+        assert_eq!(grid.neighbors(2, 2), 3);
     }
 
     #[test]
@@ -299,7 +299,7 @@ mod tests {
         let vecs = vec![vec![false, true, true], vec![true; 3]];
         let grid = Grid::from_nested_vecs(vecs);
 
-        let _should_panic = grid.count_neighbors(2, 3);
+        let _should_panic = grid.neighbors(2, 3);
     }
 
     #[test]

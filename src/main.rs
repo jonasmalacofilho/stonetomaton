@@ -223,7 +223,7 @@ pub fn find_path(
 
             for movement in [Up, Down, Left, Right] {
                 let next = pos.next(movement);
-                if let Some(false) = next_generation.green(next) {
+                if let Some(false) = next_generation.alive(next) {
                     let dist = next.distance(&automaton.destination);
                     if dist < best_dist {
                         best_pos = next;
@@ -294,7 +294,7 @@ pub fn find_path_robust(
 
             for movement in [Up, Down, Left, Right] {
                 let next = pos.next(movement);
-                if let Some(false) = next_generation.green(next) {
+                if let Some(false) = next_generation.alive(next) {
                     let dist = next.distance(&automaton.destination);
                     if dist < best_dist {
                         best_pos = next;
@@ -384,20 +384,20 @@ pub struct Automaton {
 }
 
 impl Automaton {
-    fn green(&self, pos: Position) -> Option<bool> {
+    fn alive(&self, pos: Position) -> Option<bool> {
         self.grid.get(pos.i, pos.j)
     }
 
     fn next_generation(&self) -> Self {
         let mut new_gen = Grid::new(self.grid.height(), self.grid.width());
 
-        for (i, j, green) in self.grid.cells() {
-            let green_neighbors = self.grid.count_neighbors(i, j);
+        for (i, j, alive) in self.grid.cells() {
+            let alive_neighbors = self.grid.neighbors(i, j);
 
-            let new_cell = if green {
-                (4..=5).contains(&green_neighbors)
+            let new_cell = if alive {
+                (4..=5).contains(&alive_neighbors)
             } else {
-                (2..=4).contains(&green_neighbors)
+                (2..=4).contains(&alive_neighbors)
             };
 
             new_gen.set(i, j, new_cell);
@@ -475,13 +475,13 @@ pub fn lives_lost(path: &[Movement], mut automaton: Automaton) -> usize {
     let mut lost = 0;
 
     for (gen, movement) in path.iter().enumerate() {
-        if automaton.green(current).unwrap() {
+        if automaton.alive(current).unwrap() {
             lost += 1;
 
             // Leave this here in case we need to debug a bug.
             // dbg!(lost, gen, movement, current);
 
-            // However: initial and final positions cannot be green.
+            // However: initial and final positions cannot be alive.
             assert_ne!(gen, 0);
             assert_ne!(gen, path.len() - 1);
         }
