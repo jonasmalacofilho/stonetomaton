@@ -399,6 +399,7 @@ impl Automaton {
         self.grid.get(pos.i, pos.j)
     }
 
+    #[must_use]
     fn next_generation(&self) -> Self {
         let mut new_gen = Grid::new(self.grid.height(), self.grid.width());
 
