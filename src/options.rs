@@ -1,11 +1,11 @@
 use std::ops::RangeInclusive;
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 
-/// Stone automaton maze challenges solver.
+/// Stone automata maze challenge solver.
 #[derive(Parser, Debug)]
 pub struct Options {
-    /// Only solve challenge `NUMBER` (default is to solve all).
+    /// Only solve challenge `NUMBER`.
     #[arg(short, long, value_name = "NUMBER")]
     challenge: Option<u8>,
 
@@ -17,9 +17,22 @@ pub struct Options {
     #[arg(short = 'P', long, value_name = "LIMIT", default_value_t = 50)]
     pub max_pessimism: u16,
 
+    /// Prefer a particular algorithm.
+    #[arg(long)]
+    pub algorithm: Option<Algorithm>,
+
     /// Check the resulting path(s).
     #[arg(long)]
     pub check: bool,
+}
+
+/// Path finding algorithms.
+#[derive(Debug, Clone, PartialEq, Eq, ValueEnum)]
+pub enum Algorithm {
+    /// Generally time and space efficient, but suffers in the worst case.
+    Heuristic,
+    /// Tuned for worst-case performance.
+    Robust,
 }
 
 impl Options {

@@ -98,7 +98,7 @@ use clap::Parser;
 
 use crate::bitgrid::BitGrid;
 use crate::grid::Grid;
-use crate::options::Options;
+use crate::options::{Algorithm::*, Options};
 use crate::position::Movement::{self, *};
 use crate::position::Position;
 
@@ -122,9 +122,15 @@ fn main() {
         let mut automaton = parse_allow_indeterminate(&input, (2300..2310, 2300..2310));
         if challenge != 0 {
             automaton.immutable_endpoints = true;
-            eprintln!("{INFO}immutable_endpoints={}", automaton.immutable_endpoints);
+            eprintln!(
+                "{INFO}immutable_endpoints={}",
+                automaton.immutable_endpoints
+            );
         }
-        eprintln!("{INFO}immutable_endpoints={}", automaton.immutable_endpoints);
+        eprintln!(
+            "{INFO}immutable_endpoints={}",
+            automaton.immutable_endpoints
+        );
 
         if challenge == 4 {
             eprintln!("{STEP}Applying puzzle solution");
@@ -134,13 +140,19 @@ fn main() {
 
         eprintln!("{STEP}Path finding");
         let instant = Instant::now();
-        let path = match challenge {
-            0..=3 | 5 => find_path(
-                automaton.clone(),
-                options.max_generations,
-                options.max_pessimism,
-            ),
-            _ => find_path_robust(automaton.clone(), options.max_generations),
+        let path = match (&options.algorithm, challenge) {
+            (Some(Heuristic), _) | (None, 0..=3 | 5) => {
+                eprintln!("{INFO}Using heuristic algorithm");
+                find_path(
+                    automaton.clone(),
+                    options.max_generations,
+                    options.max_pessimism,
+                )
+            }
+            (Some(Robust), _) | (None, _) => {
+                eprintln!("{INFO}Using robust algorithm");
+                find_path_robust(automaton.clone(), options.max_generations)
+            }
         };
         eprintln!("{INFO}elapsed={:?}", instant.elapsed());
 
