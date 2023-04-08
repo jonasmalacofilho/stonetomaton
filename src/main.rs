@@ -92,6 +92,7 @@ use std::fmt::Display;
 use std::fs;
 use std::ops::Range;
 use std::path::PathBuf;
+use std::time::Instant;
 
 use clap::Parser;
 
@@ -130,6 +131,7 @@ fn main() {
         }
 
         eprintln!("{STEP}Path finding");
+        let instant = Instant::now();
         let path = match challenge {
             0..=3 | 5 => find_path(
                 automaton.clone(),
@@ -138,14 +140,17 @@ fn main() {
             ),
             _ => find_path_robust(automaton.clone(), options.max_generations),
         };
+        eprintln!("{INFO}elapsed={:?}", instant.elapsed());
 
         let path = match path {
             Ok(path) => {
                 eprintln!("{STEP}Path found: {} movements", path.len());
                 if options.check {
                     eprintln!("{STEP}Checking");
+                    let instant = Instant::now();
                     let lives_lost = lives_lost(&path, automaton);
                     assert_eq!(lives_lost, 0); // FIXME
+                    eprintln!("{INFO}elapsed={:?}", instant.elapsed());
                     eprintln!("{STEP}Passed: loses {} lives", lives_lost);
                 }
                 path
