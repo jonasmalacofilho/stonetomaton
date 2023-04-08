@@ -1,9 +1,9 @@
 # Find paths in 2-D-automaton mazes
 
+_Partial solution of the [Stone Automata Maze Challenge]._
+
 For a high-level overview, some implementation notes, and other information, see the module-level
 documentation in [`src/main.rs`].
-
-[`src/main.rs`]: ./src/main.rs
 
 ## Build, test and execute
 
@@ -15,8 +15,7 @@ with (stable) Rust 1.68.1.
 - View the documentation in the browser: `cargo doc --open`
 - For more options, consult the Cargo documentation.
 
----
+[Stone Automata Maze Challenge]: https://sigmageek.com/challenge_results/stone-automata-maze-challenge
+[`src/main.rs`]: ./src/main.rs
 
-Copyright 2023 [Jonas Malaco].
-
-[Jonas Malaco]: https://github.com/jonasmalacofilho
+<!-- Original challenge URL: https://sigmageek.com/solution/stone-automata-maze-challenge -->

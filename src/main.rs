@@ -1,5 +1,7 @@
 //! Find paths in 2-D-automaton mazes.
 //!
+//! _Partial solution of the [Stone Automata Maze Challenge]._
+//!
 //! # High-level overview
 //!
 //! This program finds paths in 2-dimensional automata, moving horizontally or vertically one cell
@@ -78,11 +80,7 @@
 //! - View this documentation in the browser: `cargo doc --open`
 //! - For more options, consult the Cargo documentation.
 //!
-//! ---
-//!
-//! Copyright 2023 [Jonas Malaco].
-//!
-//! [Jonas Malaco]: https://github.com/jonasmalacofilho
+//! [Stone Automata Maze Challenge]: https://sigmageek.com/challenge_results/stone-automata-maze-challenge
 
 mod bitgrid;
 mod grid;

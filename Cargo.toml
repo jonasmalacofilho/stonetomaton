@@ -1,10 +1,12 @@
 [package]
 name = "stonetomaton"
-description = "Find paths in 2-D-automaton mazes"
 version = "0.2.0"
+description = "Find paths in 2-D-automaton mazes"
 edition = "2021"
 rust-version = "1.68.1"
-authors = ["Jonas Malaco"]
+authors = ["Jonas Malaco <jonas@protocubo.io>"]
+repository = "https://github.com/jonasmalacofilho/stonetomaton"
+license = "Unlicense"
 publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
