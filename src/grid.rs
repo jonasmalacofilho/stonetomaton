@@ -45,22 +45,23 @@ impl Grid {
     /// Returns the value in cell `(i,j)`, or `None` if `(i,j)` is not in bounds.
     pub fn get(&self, i: i16, j: i16) -> Option<bool> {
         let index = self.index(i, j)?;
-        self.raw.get(index).copied()
+        // SAFETY: at this point `index` is guaranteed to be in bounds.
+        Some(unsafe { *self.raw.get_unchecked(index) })
     }
 
     /// Sets cell `(i,j)` to `value`.
     pub fn set(&mut self, i: i16, j: i16, value: bool) {
         let index = self.index(i, j).unwrap();
-        self.raw[index] = value;
+        // SAFETY: at this point `index` is guaranteed to be in bounds.
+        unsafe { *self.raw.get_unchecked_mut(index) = value };
     }
 
     /// Iterate through all cells in the grid.
     pub fn cells(&self) -> impl Iterator<Item = (i16, i16, bool)> + '_ {
         let (mut i, mut j) = (0, 0);
         iter::from_fn(move || {
-            if let Some(index) = self.index(i, j) {
-                // SAFETY: `index` is in bounds.
-                let cur = (i, j, unsafe { *self.raw.get_unchecked(index) });
+            if let Some(cell) = self.get(i, j) {
+                let cur = (i, j, cell);
                 j += 1;
                 if j >= self.width {
                     j = 0;
@@ -81,12 +82,7 @@ impl Grid {
         assert!(self.index(i, j).is_some());
 
         fn helper(grid: &Grid, i: i16, j: i16, addi: i16, addj: i16) -> u8 {
-            if let Some(index) = grid.index(i + addi, j + addj) {
-                // SAFETY: `index` is in bounds.
-                unsafe { *grid.raw.get_unchecked(index) as u8 }
-            } else {
-                0
-            }
+            grid.get(i + addi, j + addj).unwrap_or_default() as u8
         }
 
         helper(self, i, j, -1, -1)
