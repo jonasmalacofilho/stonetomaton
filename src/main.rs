@@ -217,7 +217,7 @@ pub fn find_path(
             eprintln!("{INFO}gen={gen} best_pos={best_pos:?} best_dist={best_dist}");
         }
 
-        let next_generation = automaton.next_generation();
+        automaton = automaton.next_generation();
         let mut next_history =
             OptHashMap::with_capacity_and_hasher(history[gen].capacity(), Default::default());
 
@@ -228,7 +228,7 @@ pub fn find_path(
 
             for movement in [Up, Down, Left, Right] {
                 let next = pos.next(movement);
-                if let Some(false) = next_generation.alive(next) {
+                if let Some(false) = automaton.alive(next) {
                     let dist = next.distance(&automaton.destination);
                     if dist < best_dist {
                         best_pos = next;
@@ -249,7 +249,6 @@ pub fn find_path(
             break;
         }
 
-        automaton = next_generation;
         history.push(next_history);
     }
 
@@ -289,7 +288,7 @@ pub fn find_path_robust(
             eprintln!("{INFO}gen={gen} best_pos={best_pos:?} best_dist={best_dist}");
         }
 
-        let next_generation = automaton.next_generation();
+        automaton = automaton.next_generation();
         let mut next_history = BitGrid::with_dim_from(&history[gen]);
 
         for pos in history[gen].iter() {
@@ -299,7 +298,7 @@ pub fn find_path_robust(
 
             for movement in [Up, Down, Left, Right] {
                 let next = pos.next(movement);
-                if let Some(false) = next_generation.alive(next) {
+                if let Some(false) = automaton.alive(next) {
                     let dist = next.distance(&automaton.destination);
                     if dist < best_dist {
                         best_pos = next;
@@ -316,7 +315,6 @@ pub fn find_path_robust(
             break;
         }
 
-        automaton = next_generation;
         history.push(next_history);
     }
 
@@ -382,6 +380,7 @@ pub fn path_to_string(path: &[Movement]) -> String {
 #[derive(Debug, Clone)]
 pub struct Automaton {
     grid: Grid,
+    alt: Grid,
     source: Position,
     destination: Position,
 
@@ -389,15 +388,26 @@ pub struct Automaton {
 }
 
 impl Automaton {
-    fn alive(&self, pos: Position) -> Option<bool> {
+    pub fn new(grid: Grid, source: Position, destination: Position) -> Self {
+        Automaton {
+            alt: grid.clone(),
+            grid,
+            source,
+            destination,
+            immutable_endpoints: false,
+        }
+    }
+
+    pub fn alive(&self, pos: Position) -> Option<bool> {
         self.grid.get(pos.i, pos.j)
     }
 
-    fn next_generation(&self) -> Self {
-        let mut new_gen = Grid::new(self.grid.height(), self.grid.width());
+    pub fn next_generation(self) -> Self {
+        let cur = self.grid;
+        let mut new = self.alt;
 
-        for (i, j, alive) in self.grid.cells() {
-            let alive_neighbors = self.grid.neighbors(i, j);
+        for (i, j, alive) in cur.cells() {
+            let alive_neighbors = cur.neighbors(i, j);
 
             let new_cell = if alive {
                 (4..=5).contains(&alive_neighbors)
@@ -405,17 +415,18 @@ impl Automaton {
                 (2..=4).contains(&alive_neighbors)
             };
 
-            new_gen.set(i, j, new_cell);
+            new.set(i, j, new_cell);
         }
 
         if self.immutable_endpoints {
-            new_gen.set(self.source.i, self.source.j, false);
-            new_gen.set(self.destination.i, self.destination.j, false);
+            new.set(self.source.i, self.source.j, false);
+            new.set(self.destination.i, self.destination.j, false);
         }
 
         Automaton {
-            grid: new_gen,
-            ..*self
+            grid: new,
+            alt: cur,
+            ..self
         }
     }
 }
@@ -467,12 +478,11 @@ fn parse_allow_indeterminate(s: &str, (xi, xj): (Range<i16>, Range<i16>)) -> Aut
         .collect();
     let grid = Grid::from_nested_vecs(tmp);
 
-    Automaton {
+    Automaton::new(
         grid,
-        source: source.expect("missing source"),
-        destination: destination.expect("missing destination"),
-        immutable_endpoints: false,
-    }
+        source.expect("missing source"),
+        destination.expect("missing destination"),
+    )
 }
 
 pub fn lives_lost(path: &[Movement], mut automaton: Automaton) -> usize {
