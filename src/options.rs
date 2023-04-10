@@ -18,7 +18,7 @@ pub struct Options {
     pub max_pessimism: u16,
 
     /// Prefer a particular algorithm.
-    #[arg(long)]
+    #[arg(short = 'A', long)]
     pub algorithm: Option<Algorithm>,
 
     /// Check the resulting path(s).
