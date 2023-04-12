@@ -1,6 +1,5 @@
-.run.log
+/output*.txt*
+/submissions/archive
 /target
 input4-puzzle.txt
-output*.txt*
 perf.data*
-/submissions
