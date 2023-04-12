@@ -15,7 +15,7 @@ with (stable) Rust 1.68.1.
 - View the documentation in the browser: `cargo doc --open`
 - For more options, consult the Cargo documentation.
 
-[Stone Automata Maze Challenge]: https://sigmageek.com/challenge_results/stone-automata-maze-challenge
+[Stone Automata Maze Challenge]: https://sigmageek.com/stone_results/stone-automata-maze-challenge
 [`src/main.rs`]: ./src/main.rs
 
 <!-- Original challenge URL: https://sigmageek.com/solution/stone-automata-maze-challenge -->

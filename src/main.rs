@@ -80,7 +80,7 @@
 //! - View this documentation in the browser: `cargo doc --open`
 //! - For more options, consult the Cargo documentation.
 //!
-//! [Stone Automata Maze Challenge]: https://sigmageek.com/challenge_results/stone-automata-maze-challenge
+//! [Stone Automata Maze Challenge]: https://sigmageek.com/stone_results/stone-automata-maze-challenge
 
 mod bitgrid;
 mod grid;
