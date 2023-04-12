@@ -22,8 +22,8 @@ Level 2: [code][level2-tag] | [run log][level2-log] | [outputs][level2-output]
 
 [Stone Automata Maze Challenge]: https://sigmageek.com/stone_results/stone-automata-maze-challenge
 [`src/main.rs`]: ./src/main.rs
-[level2-log]: [./submissions/level2/run.log]
-[level2-output]: [./submissions/level2]
+[level2-log]: ./submissions/level2/run.log
+[level2-output]: ./submissions/level2
 [level2-tag]: https://github.com/jonasmalacofilho/stonetomaton/releases/tag/submission-level-2
 
 <!-- Original challenge URL: https://sigmageek.com/solution/stone-automata-maze-challenge -->
