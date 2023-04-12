@@ -1,299 +1,299 @@
-[m[1;32m   Compiling[22;39m stonetomaton v0.2.0 (/home/jonas/Code/stonetomaton)
-[m[1;32m    Finished[22;39m release [optimized] target(s) in 6.88s
-[m[1;32m     Running[22;39m `target/release/stonetomaton --check`
-[m=> Solving challenge 0
-[m   Reading input from "input.txt"
-[m   Path finding
-[m    - max_generations=50000 max_pessimism=50
-[m    - gen=100 best_pos=(36,38) best_dist=74
-[m    - gen=200 best_pos=(55,79) best_dist=14
-[m   Path found: 220 movements
-[m   Checking
-[m   Passed: loses 0 lives
-[m   Saving output to "output.txt"
+   Compiling stonetomaton v0.2.0 (/home/jonas/Code/stonetomaton)
+    Finished release [optimized] target(s) in 6.88s
+     Running `target/release/stonetomaton --check`
+=> Solving challenge 0
+   Reading input from "input.txt"
+   Path finding
+    - max_generations=50000 max_pessimism=50
+    - gen=100 best_pos=(36,38) best_dist=74
+    - gen=200 best_pos=(55,79) best_dist=14
+   Path found: 220 movements
+   Checking
+   Passed: loses 0 lives
+   Saving output to "output.txt"
 
-[m=> Solving challenge 1
-[m   Reading input from "input1.txt"
-[m   Path finding
-[m    - max_generations=50000 max_pessimism=50
-[m    - gen=100 best_pos=(15,55) best_dist=3928
-[m    - gen=200 best_pos=(37,96) best_dist=3865
-[m    - gen=300 best_pos=(72,132) best_dist=3794
-[m    - gen=400 best_pos=(102,176) best_dist=3720
-[m    - gen=500 best_pos=(146,192) best_dist=3660
-[m    - gen=600 best_pos=(164,236) best_dist=3598
-[m    - gen=700 best_pos=(199,261) best_dist=3538
-[m    - gen=800 best_pos=(228,293) best_dist=3477
-[m    - gen=900 best_pos=(250,334) best_dist=3414
-[m    - gen=1000 best_pos=(297,354) best_dist=3347
-[m    - gen=1100 best_pos=(328,390) best_dist=3280
-[m    - gen=1200 best_pos=(354,422) best_dist=3222
-[m    - gen=1300 best_pos=(368,468) best_dist=3162
-[m    - gen=1400 best_pos=(431,481) best_dist=3086
-[m    - gen=1500 best_pos=(434,539) best_dist=3025
-[m    - gen=1600 best_pos=(473,565) best_dist=2960
-[m    - gen=1700 best_pos=(496,614) best_dist=2888
-[m    - gen=1800 best_pos=(539,629) best_dist=2830
-[m    - gen=1900 best_pos=(605,623) best_dist=2770
-[m    - gen=2000 best_pos=(613,690) best_dist=2695
-[m    - gen=2100 best_pos=(637,727) best_dist=2634
-[m    - gen=2200 best_pos=(681,745) best_dist=2572
-[m    - gen=2300 best_pos=(682,808) best_dist=2508
-[m    - gen=2400 best_pos=(706,850) best_dist=2442
-[m    - gen=2500 best_pos=(751,870) best_dist=2377
-[m    - gen=2600 best_pos=(860,832) best_dist=2306
-[m    - gen=2700 best_pos=(894,864) best_dist=2240
-[m    - gen=2800 best_pos=(896,920) best_dist=2182
-[m    - gen=2900 best_pos=(910,972) best_dist=2116
-[m    - gen=3000 best_pos=(946,999) best_dist=2053
-[m    - gen=3100 best_pos=(973,1037) best_dist=1988
-[m    - gen=3200 best_pos=(928,1138) best_dist=1932
-[m    - gen=3300 best_pos=(1110,1028) best_dist=1860
-[m    - gen=3400 best_pos=(1135,1071) best_dist=1792
-[m    - gen=3500 best_pos=(1175,1091) best_dist=1732
-[m    - gen=3600 best_pos=(1227,1107) best_dist=1664
-[m    - gen=3700 best_pos=(1239,1160) best_dist=1599
-[m    - gen=3800 best_pos=(1275,1193) best_dist=1530
-[m    - gen=3900 best_pos=(1288,1238) best_dist=1472
-[m    - gen=4000 best_pos=(1380,1216) best_dist=1402
-[m    - gen=4100 best_pos=(1422,1238) best_dist=1338
-[m    - gen=4200 best_pos=(1444,1278) best_dist=1276
-[m    - gen=4300 best_pos=(1483,1307) best_dist=1208
-[m    - gen=4400 best_pos=(1537,1320) best_dist=1141
-[m    - gen=4500 best_pos=(1478,1444) best_dist=1076
-[m    - gen=4600 best_pos=(1498,1489) best_dist=1011
-[m    - gen=4700 best_pos=(1627,1431) best_dist=940
-[m    - gen=4800 best_pos=(1564,1554) best_dist=880
-[m    - gen=4900 best_pos=(1724,1462) best_dist=812
-[m    - gen=5000 best_pos=(1763,1487) best_dist=748
-[m    - gen=5100 best_pos=(1666,1647) best_dist=685
-[m    - gen=5200 best_pos=(1721,1661) best_dist=616
-[m    - gen=5300 best_pos=(1764,1692) best_dist=542
-[m    - gen=5400 best_pos=(1790,1728) best_dist=480
-[m    - gen=5500 best_pos=(1828,1758) best_dist=412
-[m    - gen=5600 best_pos=(1850,1795) best_dist=353
-[m    - gen=5700 best_pos=(1874,1827) best_dist=297
-[m    - gen=5800 best_pos=(1931,1829) best_dist=238
-[m    - gen=5900 best_pos=(1900,1924) best_dist=174
-[m    - gen=6000 best_pos=(1920,1964) best_dist=114
-[m    - gen=6100 best_pos=(1993,1959) best_dist=46
-[m   Path found: 6176 movements
-[m   Checking
-[m   Passed: loses 0 lives
-[m   Saving output to "output1.txt"
+=> Solving challenge 1
+   Reading input from "input1.txt"
+   Path finding
+    - max_generations=50000 max_pessimism=50
+    - gen=100 best_pos=(15,55) best_dist=3928
+    - gen=200 best_pos=(37,96) best_dist=3865
+    - gen=300 best_pos=(72,132) best_dist=3794
+    - gen=400 best_pos=(102,176) best_dist=3720
+    - gen=500 best_pos=(146,192) best_dist=3660
+    - gen=600 best_pos=(164,236) best_dist=3598
+    - gen=700 best_pos=(199,261) best_dist=3538
+    - gen=800 best_pos=(228,293) best_dist=3477
+    - gen=900 best_pos=(250,334) best_dist=3414
+    - gen=1000 best_pos=(297,354) best_dist=3347
+    - gen=1100 best_pos=(328,390) best_dist=3280
+    - gen=1200 best_pos=(354,422) best_dist=3222
+    - gen=1300 best_pos=(368,468) best_dist=3162
+    - gen=1400 best_pos=(431,481) best_dist=3086
+    - gen=1500 best_pos=(434,539) best_dist=3025
+    - gen=1600 best_pos=(473,565) best_dist=2960
+    - gen=1700 best_pos=(496,614) best_dist=2888
+    - gen=1800 best_pos=(539,629) best_dist=2830
+    - gen=1900 best_pos=(605,623) best_dist=2770
+    - gen=2000 best_pos=(613,690) best_dist=2695
+    - gen=2100 best_pos=(637,727) best_dist=2634
+    - gen=2200 best_pos=(681,745) best_dist=2572
+    - gen=2300 best_pos=(682,808) best_dist=2508
+    - gen=2400 best_pos=(706,850) best_dist=2442
+    - gen=2500 best_pos=(751,870) best_dist=2377
+    - gen=2600 best_pos=(860,832) best_dist=2306
+    - gen=2700 best_pos=(894,864) best_dist=2240
+    - gen=2800 best_pos=(896,920) best_dist=2182
+    - gen=2900 best_pos=(910,972) best_dist=2116
+    - gen=3000 best_pos=(946,999) best_dist=2053
+    - gen=3100 best_pos=(973,1037) best_dist=1988
+    - gen=3200 best_pos=(928,1138) best_dist=1932
+    - gen=3300 best_pos=(1110,1028) best_dist=1860
+    - gen=3400 best_pos=(1135,1071) best_dist=1792
+    - gen=3500 best_pos=(1175,1091) best_dist=1732
+    - gen=3600 best_pos=(1227,1107) best_dist=1664
+    - gen=3700 best_pos=(1239,1160) best_dist=1599
+    - gen=3800 best_pos=(1275,1193) best_dist=1530
+    - gen=3900 best_pos=(1288,1238) best_dist=1472
+    - gen=4000 best_pos=(1380,1216) best_dist=1402
+    - gen=4100 best_pos=(1422,1238) best_dist=1338
+    - gen=4200 best_pos=(1444,1278) best_dist=1276
+    - gen=4300 best_pos=(1483,1307) best_dist=1208
+    - gen=4400 best_pos=(1537,1320) best_dist=1141
+    - gen=4500 best_pos=(1478,1444) best_dist=1076
+    - gen=4600 best_pos=(1498,1489) best_dist=1011
+    - gen=4700 best_pos=(1627,1431) best_dist=940
+    - gen=4800 best_pos=(1564,1554) best_dist=880
+    - gen=4900 best_pos=(1724,1462) best_dist=812
+    - gen=5000 best_pos=(1763,1487) best_dist=748
+    - gen=5100 best_pos=(1666,1647) best_dist=685
+    - gen=5200 best_pos=(1721,1661) best_dist=616
+    - gen=5300 best_pos=(1764,1692) best_dist=542
+    - gen=5400 best_pos=(1790,1728) best_dist=480
+    - gen=5500 best_pos=(1828,1758) best_dist=412
+    - gen=5600 best_pos=(1850,1795) best_dist=353
+    - gen=5700 best_pos=(1874,1827) best_dist=297
+    - gen=5800 best_pos=(1931,1829) best_dist=238
+    - gen=5900 best_pos=(1900,1924) best_dist=174
+    - gen=6000 best_pos=(1920,1964) best_dist=114
+    - gen=6100 best_pos=(1993,1959) best_dist=46
+   Path found: 6176 movements
+   Checking
+   Passed: loses 0 lives
+   Saving output to "output1.txt"
 
-[m=> Solving challenge 2
-[m   Reading input from "input2.txt"
-[m   Path finding
-[m    - max_generations=50000 max_pessimism=50
-[m    - gen=100 best_pos=(31,40) best_dist=3927
-[m    - gen=200 best_pos=(65,75) best_dist=3858
-[m    - gen=300 best_pos=(111,85) best_dist=3802
-[m    - gen=400 best_pos=(126,136) best_dist=3736
-[m    - gen=500 best_pos=(166,163) best_dist=3669
-[m    - gen=600 best_pos=(178,212) best_dist=3608
-[m    - gen=700 best_pos=(221,239) best_dist=3538
-[m    - gen=800 best_pos=(256,274) best_dist=3468
-[m    - gen=900 best_pos=(284,313) best_dist=3401
-[m    - gen=1000 best_pos=(355,301) best_dist=3342
-[m    - gen=1100 best_pos=(395,335) best_dist=3268
-[m    - gen=1200 best_pos=(424,362) best_dist=3212
-[m    - gen=1300 best_pos=(442,410) best_dist=3146
-[m    - gen=1400 best_pos=(451,459) best_dist=3088
-[m    - gen=1500 best_pos=(515,459) best_dist=3024
-[m    - gen=1600 best_pos=(545,493) best_dist=2960
-[m    - gen=1700 best_pos=(569,527) best_dist=2902
-[m    - gen=1800 best_pos=(603,565) best_dist=2830
-[m    - gen=1900 best_pos=(644,587) best_dist=2767
-[m    - gen=2000 best_pos=(690,612) best_dist=2696
-[m    - gen=2100 best_pos=(704,666) best_dist=2628
-[m    - gen=2200 best_pos=(744,684) best_dist=2570
-[m    - gen=2300 best_pos=(781,701) best_dist=2516
-[m    - gen=2400 best_pos=(751,790) best_dist=2457
-[m    - gen=2500 best_pos=(779,826) best_dist=2393
-[m    - gen=2600 best_pos=(816,852) best_dist=2330
-[m    - gen=2700 best_pos=(855,885) best_dist=2258
-[m    - gen=2800 best_pos=(887,923) best_dist=2188
-[m    - gen=2900 best_pos=(918,958) best_dist=2122
-[m    - gen=3000 best_pos=(823,1121) best_dist=2054
-[m    - gen=3100 best_pos=(866,1132) best_dist=2000
-[m    - gen=3200 best_pos=(959,1107) best_dist=1932
-[m    - gen=3300 best_pos=(897,1231) best_dist=1870
-[m    - gen=3400 best_pos=(1019,1173) best_dist=1806
-[m    - gen=3500 best_pos=(994,1258) best_dist=1746
-[m    - gen=3600 best_pos=(1027,1288) best_dist=1683
-[m    - gen=3700 best_pos=(1063,1317) best_dist=1618
-[m    - gen=3800 best_pos=(1251,1186) best_dist=1561
-[m    - gen=3900 best_pos=(1287,1223) best_dist=1488
-[m    - gen=4000 best_pos=(1309,1259) best_dist=1430
-[m    - gen=4100 best_pos=(1364,1273) best_dist=1361
-[m    - gen=4200 best_pos=(1398,1297) best_dist=1303
-[m    - gen=4300 best_pos=(1424,1342) best_dist=1232
-[m    - gen=4400 best_pos=(1485,1337) best_dist=1176
-[m    - gen=4500 best_pos=(1497,1389) best_dist=1112
-[m    - gen=4600 best_pos=(1387,1569) best_dist=1042
-[m    - gen=4700 best_pos=(1568,1446) best_dist=984
-[m    - gen=4800 best_pos=(1389,1685) best_dist=924
-[m    - gen=4900 best_pos=(1493,1650) best_dist=855
-[m    - gen=5000 best_pos=(1651,1555) best_dist=792
-[m    - gen=5100 best_pos=(1541,1728) best_dist=729
-[m    - gen=5200 best_pos=(1589,1747) best_dist=662
-[m    - gen=5300 best_pos=(1731,1668) best_dist=599
-[m    - gen=5400 best_pos=(1762,1695) best_dist=541
-[m    - gen=5500 best_pos=(1801,1725) best_dist=472
-[m    - gen=5600 best_pos=(1821,1765) best_dist=412
-[m    - gen=5700 best_pos=(1860,1799) best_dist=339
-[m    - gen=5800 best_pos=(1880,1838) best_dist=280
-[m    - gen=5900 best_pos=(1896,1890) best_dist=212
-[m    - gen=6000 best_pos=(1928,1926) best_dist=144
-[m    - gen=6100 best_pos=(1961,1949) best_dist=88
-[m    - gen=6200 best_pos=(1964,1999) best_dist=35
-[m   Path found: 6264 movements
-[m   Checking
-[m   Passed: loses 0 lives
-[m   Saving output to "output2.txt"
+=> Solving challenge 2
+   Reading input from "input2.txt"
+   Path finding
+    - max_generations=50000 max_pessimism=50
+    - gen=100 best_pos=(31,40) best_dist=3927
+    - gen=200 best_pos=(65,75) best_dist=3858
+    - gen=300 best_pos=(111,85) best_dist=3802
+    - gen=400 best_pos=(126,136) best_dist=3736
+    - gen=500 best_pos=(166,163) best_dist=3669
+    - gen=600 best_pos=(178,212) best_dist=3608
+    - gen=700 best_pos=(221,239) best_dist=3538
+    - gen=800 best_pos=(256,274) best_dist=3468
+    - gen=900 best_pos=(284,313) best_dist=3401
+    - gen=1000 best_pos=(355,301) best_dist=3342
+    - gen=1100 best_pos=(395,335) best_dist=3268
+    - gen=1200 best_pos=(424,362) best_dist=3212
+    - gen=1300 best_pos=(442,410) best_dist=3146
+    - gen=1400 best_pos=(451,459) best_dist=3088
+    - gen=1500 best_pos=(515,459) best_dist=3024
+    - gen=1600 best_pos=(545,493) best_dist=2960
+    - gen=1700 best_pos=(569,527) best_dist=2902
+    - gen=1800 best_pos=(603,565) best_dist=2830
+    - gen=1900 best_pos=(644,587) best_dist=2767
+    - gen=2000 best_pos=(690,612) best_dist=2696
+    - gen=2100 best_pos=(704,666) best_dist=2628
+    - gen=2200 best_pos=(744,684) best_dist=2570
+    - gen=2300 best_pos=(781,701) best_dist=2516
+    - gen=2400 best_pos=(751,790) best_dist=2457
+    - gen=2500 best_pos=(779,826) best_dist=2393
+    - gen=2600 best_pos=(816,852) best_dist=2330
+    - gen=2700 best_pos=(855,885) best_dist=2258
+    - gen=2800 best_pos=(887,923) best_dist=2188
+    - gen=2900 best_pos=(918,958) best_dist=2122
+    - gen=3000 best_pos=(823,1121) best_dist=2054
+    - gen=3100 best_pos=(866,1132) best_dist=2000
+    - gen=3200 best_pos=(959,1107) best_dist=1932
+    - gen=3300 best_pos=(897,1231) best_dist=1870
+    - gen=3400 best_pos=(1019,1173) best_dist=1806
+    - gen=3500 best_pos=(994,1258) best_dist=1746
+    - gen=3600 best_pos=(1027,1288) best_dist=1683
+    - gen=3700 best_pos=(1063,1317) best_dist=1618
+    - gen=3800 best_pos=(1251,1186) best_dist=1561
+    - gen=3900 best_pos=(1287,1223) best_dist=1488
+    - gen=4000 best_pos=(1309,1259) best_dist=1430
+    - gen=4100 best_pos=(1364,1273) best_dist=1361
+    - gen=4200 best_pos=(1398,1297) best_dist=1303
+    - gen=4300 best_pos=(1424,1342) best_dist=1232
+    - gen=4400 best_pos=(1485,1337) best_dist=1176
+    - gen=4500 best_pos=(1497,1389) best_dist=1112
+    - gen=4600 best_pos=(1387,1569) best_dist=1042
+    - gen=4700 best_pos=(1568,1446) best_dist=984
+    - gen=4800 best_pos=(1389,1685) best_dist=924
+    - gen=4900 best_pos=(1493,1650) best_dist=855
+    - gen=5000 best_pos=(1651,1555) best_dist=792
+    - gen=5100 best_pos=(1541,1728) best_dist=729
+    - gen=5200 best_pos=(1589,1747) best_dist=662
+    - gen=5300 best_pos=(1731,1668) best_dist=599
+    - gen=5400 best_pos=(1762,1695) best_dist=541
+    - gen=5500 best_pos=(1801,1725) best_dist=472
+    - gen=5600 best_pos=(1821,1765) best_dist=412
+    - gen=5700 best_pos=(1860,1799) best_dist=339
+    - gen=5800 best_pos=(1880,1838) best_dist=280
+    - gen=5900 best_pos=(1896,1890) best_dist=212
+    - gen=6000 best_pos=(1928,1926) best_dist=144
+    - gen=6100 best_pos=(1961,1949) best_dist=88
+    - gen=6200 best_pos=(1964,1999) best_dist=35
+   Path found: 6264 movements
+   Checking
+   Passed: loses 0 lives
+   Saving output to "output2.txt"
 
-[m=> Solving challenge 3
-[m   Reading input from "input3.txt"
-[m   Path finding
-[m    - max_generations=50000 max_pessimism=50
-[m    - gen=100 best_pos=(30,40) best_dist=3928
-[m    - gen=200 best_pos=(60,71) best_dist=3867
-[m    - gen=300 best_pos=(92,100) best_dist=3806
-[m    - gen=400 best_pos=(86,166) best_dist=3746
-[m    - gen=500 best_pos=(166,154) best_dist=3678
-[m    - gen=600 best_pos=(176,209) best_dist=3613
-[m    - gen=700 best_pos=(260,188) best_dist=3550
-[m    - gen=800 best_pos=(275,236) best_dist=3487
-[m    - gen=900 best_pos=(307,273) best_dist=3418
-[m    - gen=1000 best_pos=(330,308) best_dist=3360
-[m    - gen=1100 best_pos=(362,346) best_dist=3290
-[m    - gen=1200 best_pos=(393,375) best_dist=3230
-[m    - gen=1300 best_pos=(432,406) best_dist=3160
-[m    - gen=1400 best_pos=(476,432) best_dist=3090
-[m    - gen=1500 best_pos=(496,479) best_dist=3023
-[m    - gen=1600 best_pos=(554,479) best_dist=2965
-[m    - gen=1700 best_pos=(539,565) best_dist=2894
-[m    - gen=1800 best_pos=(570,595) best_dist=2833
-[m    - gen=1900 best_pos=(593,640) best_dist=2765
-[m    - gen=2000 best_pos=(622,670) best_dist=2706
-[m    - gen=2100 best_pos=(656,706) best_dist=2636
-[m    - gen=2200 best_pos=(698,735) best_dist=2565
-[m    - gen=2300 best_pos=(695,798) best_dist=2505
-[m    - gen=2400 best_pos=(763,796) best_dist=2439
-[m    - gen=2500 best_pos=(738,880) best_dist=2380
-[m    - gen=2600 best_pos=(836,848) best_dist=2314
-[m    - gen=2700 best_pos=(782,970) best_dist=2246
-[m    - gen=2800 best_pos=(896,922) best_dist=2180
-[m    - gen=2900 best_pos=(852,1031) best_dist=2115
-[m    - gen=3000 best_pos=(888,1058) best_dist=2052
-[m    - gen=3100 best_pos=(922,1094) best_dist=1982
-[m    - gen=3200 best_pos=(956,1130) best_dist=1912
-[m    - gen=3300 best_pos=(981,1163) best_dist=1854
-[m    - gen=3400 best_pos=(1013,1197) best_dist=1788
-[m    - gen=3500 best_pos=(1050,1226) best_dist=1722
-[m    - gen=3600 best_pos=(1081,1253) best_dist=1664
-[m    - gen=3700 best_pos=(1227,1175) best_dist=1596
-[m    - gen=3800 best_pos=(1158,1320) best_dist=1520
-[m    - gen=3900 best_pos=(1198,1348) best_dist=1452
-[m    - gen=4000 best_pos=(1222,1390) best_dist=1386
-[m    - gen=4100 best_pos=(1269,1405) best_dist=1324
-[m    - gen=4200 best_pos=(1286,1448) best_dist=1264
-[m    - gen=4300 best_pos=(1296,1499) best_dist=1203
-[m    - gen=4400 best_pos=(1333,1527) best_dist=1138
-[m    - gen=4500 best_pos=(1443,1477) best_dist=1078
-[m    - gen=4600 best_pos=(1411,1577) best_dist=1010
-[m    - gen=4700 best_pos=(1528,1526) best_dist=944
-[m    - gen=4800 best_pos=(1546,1572) best_dist=880
-[m    - gen=4900 best_pos=(1601,1585) best_dist=812
-[m    - gen=5000 best_pos=(1627,1623) best_dist=748
-[m    - gen=5100 best_pos=(1646,1664) best_dist=688
-[m    - gen=5200 best_pos=(1650,1726) best_dist=622
-[m    - gen=5300 best_pos=(1680,1765) best_dist=553
-[m    - gen=5400 best_pos=(1714,1796) best_dist=488
-[m    - gen=5500 best_pos=(1750,1832) best_dist=416
-[m    - gen=5600 best_pos=(1775,1865) best_dist=358
-[m    - gen=5700 best_pos=(1816,1896) best_dist=286
-[m    - gen=5800 best_pos=(1823,1958) best_dist=217
-[m    - gen=5900 best_pos=(1864,1976) best_dist=158
-[m    - gen=6000 best_pos=(1915,1997) best_dist=86
-[m    - gen=6100 best_pos=(1963,1999) best_dist=36
-[m    - gen=6200 best_pos=(1999,1999) best_dist=0
-[m   Path found: 6200 movements
-[m   Checking
-[m   Passed: loses 0 lives
-[m   Saving output to "output3.txt"
+=> Solving challenge 3
+   Reading input from "input3.txt"
+   Path finding
+    - max_generations=50000 max_pessimism=50
+    - gen=100 best_pos=(30,40) best_dist=3928
+    - gen=200 best_pos=(60,71) best_dist=3867
+    - gen=300 best_pos=(92,100) best_dist=3806
+    - gen=400 best_pos=(86,166) best_dist=3746
+    - gen=500 best_pos=(166,154) best_dist=3678
+    - gen=600 best_pos=(176,209) best_dist=3613
+    - gen=700 best_pos=(260,188) best_dist=3550
+    - gen=800 best_pos=(275,236) best_dist=3487
+    - gen=900 best_pos=(307,273) best_dist=3418
+    - gen=1000 best_pos=(330,308) best_dist=3360
+    - gen=1100 best_pos=(362,346) best_dist=3290
+    - gen=1200 best_pos=(393,375) best_dist=3230
+    - gen=1300 best_pos=(432,406) best_dist=3160
+    - gen=1400 best_pos=(476,432) best_dist=3090
+    - gen=1500 best_pos=(496,479) best_dist=3023
+    - gen=1600 best_pos=(554,479) best_dist=2965
+    - gen=1700 best_pos=(539,565) best_dist=2894
+    - gen=1800 best_pos=(570,595) best_dist=2833
+    - gen=1900 best_pos=(593,640) best_dist=2765
+    - gen=2000 best_pos=(622,670) best_dist=2706
+    - gen=2100 best_pos=(656,706) best_dist=2636
+    - gen=2200 best_pos=(698,735) best_dist=2565
+    - gen=2300 best_pos=(695,798) best_dist=2505
+    - gen=2400 best_pos=(763,796) best_dist=2439
+    - gen=2500 best_pos=(738,880) best_dist=2380
+    - gen=2600 best_pos=(836,848) best_dist=2314
+    - gen=2700 best_pos=(782,970) best_dist=2246
+    - gen=2800 best_pos=(896,922) best_dist=2180
+    - gen=2900 best_pos=(852,1031) best_dist=2115
+    - gen=3000 best_pos=(888,1058) best_dist=2052
+    - gen=3100 best_pos=(922,1094) best_dist=1982
+    - gen=3200 best_pos=(956,1130) best_dist=1912
+    - gen=3300 best_pos=(981,1163) best_dist=1854
+    - gen=3400 best_pos=(1013,1197) best_dist=1788
+    - gen=3500 best_pos=(1050,1226) best_dist=1722
+    - gen=3600 best_pos=(1081,1253) best_dist=1664
+    - gen=3700 best_pos=(1227,1175) best_dist=1596
+    - gen=3800 best_pos=(1158,1320) best_dist=1520
+    - gen=3900 best_pos=(1198,1348) best_dist=1452
+    - gen=4000 best_pos=(1222,1390) best_dist=1386
+    - gen=4100 best_pos=(1269,1405) best_dist=1324
+    - gen=4200 best_pos=(1286,1448) best_dist=1264
+    - gen=4300 best_pos=(1296,1499) best_dist=1203
+    - gen=4400 best_pos=(1333,1527) best_dist=1138
+    - gen=4500 best_pos=(1443,1477) best_dist=1078
+    - gen=4600 best_pos=(1411,1577) best_dist=1010
+    - gen=4700 best_pos=(1528,1526) best_dist=944
+    - gen=4800 best_pos=(1546,1572) best_dist=880
+    - gen=4900 best_pos=(1601,1585) best_dist=812
+    - gen=5000 best_pos=(1627,1623) best_dist=748
+    - gen=5100 best_pos=(1646,1664) best_dist=688
+    - gen=5200 best_pos=(1650,1726) best_dist=622
+    - gen=5300 best_pos=(1680,1765) best_dist=553
+    - gen=5400 best_pos=(1714,1796) best_dist=488
+    - gen=5500 best_pos=(1750,1832) best_dist=416
+    - gen=5600 best_pos=(1775,1865) best_dist=358
+    - gen=5700 best_pos=(1816,1896) best_dist=286
+    - gen=5800 best_pos=(1823,1958) best_dist=217
+    - gen=5900 best_pos=(1864,1976) best_dist=158
+    - gen=6000 best_pos=(1915,1997) best_dist=86
+    - gen=6100 best_pos=(1963,1999) best_dist=36
+    - gen=6200 best_pos=(1999,1999) best_dist=0
+   Path found: 6200 movements
+   Checking
+   Passed: loses 0 lives
+   Saving output to "output3.txt"
 
-[m=> Solving challenge 4
-[m   Reading input from "input4.txt"
-[m   Applying puzzle solution
-[m   Path finding
-[m    - max_generations=50000 max_pessimism=N/A
-[m    - gen=100 best_pos=(1,99) best_dist=4898
-[m    - gen=200 best_pos=(1,199) best_dist=4798
-[m    - gen=300 best_pos=(1,299) best_dist=4698
-[m    - gen=400 best_pos=(1,399) best_dist=4598
-[m    - gen=500 best_pos=(1,499) best_dist=4498
-[m    - gen=600 best_pos=(1,599) best_dist=4398
-[m    - gen=700 best_pos=(1,699) best_dist=4298
-[m    - gen=800 best_pos=(1,799) best_dist=4198
-[m    - gen=900 best_pos=(1,899) best_dist=4098
-[m    - gen=1000 best_pos=(1,999) best_dist=3998
-[m    - gen=1100 best_pos=(1,1099) best_dist=3898
-[m    - gen=1200 best_pos=(1,1199) best_dist=3798
-[m    - gen=1300 best_pos=(1,1299) best_dist=3698
-[m    - gen=1400 best_pos=(1,1399) best_dist=3598
-[m    - gen=1500 best_pos=(1,1499) best_dist=3498
-[m    - gen=1600 best_pos=(1,1599) best_dist=3398
-[m    - gen=1700 best_pos=(1,1699) best_dist=3298
-[m    - gen=1800 best_pos=(1,1799) best_dist=3198
-[m    - gen=1900 best_pos=(1,1899) best_dist=3098
-[m    - gen=2000 best_pos=(1,1999) best_dist=2998
-[m    - gen=2100 best_pos=(1,2099) best_dist=2898
-[m    - gen=2200 best_pos=(1,2199) best_dist=2798
-[m    - gen=2300 best_pos=(1,2298) best_dist=2699
-[m    - gen=2400 best_pos=(1,2298) best_dist=2699
-[m    - gen=2500 best_pos=(1,2298) best_dist=2699
-[m    - gen=2600 best_pos=(1,2298) best_dist=2699
-[m    - gen=2700 best_pos=(1,2298) best_dist=2699
-[m    - gen=2800 best_pos=(1,2298) best_dist=2699
-[m    - gen=2900 best_pos=(1,2298) best_dist=2699
-[m    - gen=3000 best_pos=(1,2298) best_dist=2699
-[m    - gen=3100 best_pos=(1,2298) best_dist=2699
-[m    - gen=3200 best_pos=(1,2298) best_dist=2699
-[m    - gen=3300 best_pos=(1,2298) best_dist=2699
-[m    - gen=3400 best_pos=(1,2298) best_dist=2699
-[m    - gen=3500 best_pos=(1,2298) best_dist=2699
-[m    - gen=3600 best_pos=(1,2298) best_dist=2699
-[m    - gen=3700 best_pos=(1,2298) best_dist=2699
-[m    - gen=3800 best_pos=(1,2298) best_dist=2699
-[m    - gen=3900 best_pos=(1,2298) best_dist=2699
-[m    - gen=4000 best_pos=(1,2298) best_dist=2699
-[m    - gen=4100 best_pos=(1,2298) best_dist=2699
-[m    - gen=4200 best_pos=(1,2298) best_dist=2699
-[m    - gen=4300 best_pos=(1,2298) best_dist=2699
-[m    - gen=4400 best_pos=(1,2298) best_dist=2699
-[m    - gen=4500 best_pos=(1,2298) best_dist=2699
-[m(W) - No movement in gen=4598
-[m(W) - Failed to reach the destination (distance=2699)
-[m   Best attempt found: 2299 movements
-[m   Saving output to "output4.txt"
+=> Solving challenge 4
+   Reading input from "input4.txt"
+   Applying puzzle solution
+   Path finding
+    - max_generations=50000 max_pessimism=N/A
+    - gen=100 best_pos=(1,99) best_dist=4898
+    - gen=200 best_pos=(1,199) best_dist=4798
+    - gen=300 best_pos=(1,299) best_dist=4698
+    - gen=400 best_pos=(1,399) best_dist=4598
+    - gen=500 best_pos=(1,499) best_dist=4498
+    - gen=600 best_pos=(1,599) best_dist=4398
+    - gen=700 best_pos=(1,699) best_dist=4298
+    - gen=800 best_pos=(1,799) best_dist=4198
+    - gen=900 best_pos=(1,899) best_dist=4098
+    - gen=1000 best_pos=(1,999) best_dist=3998
+    - gen=1100 best_pos=(1,1099) best_dist=3898
+    - gen=1200 best_pos=(1,1199) best_dist=3798
+    - gen=1300 best_pos=(1,1299) best_dist=3698
+    - gen=1400 best_pos=(1,1399) best_dist=3598
+    - gen=1500 best_pos=(1,1499) best_dist=3498
+    - gen=1600 best_pos=(1,1599) best_dist=3398
+    - gen=1700 best_pos=(1,1699) best_dist=3298
+    - gen=1800 best_pos=(1,1799) best_dist=3198
+    - gen=1900 best_pos=(1,1899) best_dist=3098
+    - gen=2000 best_pos=(1,1999) best_dist=2998
+    - gen=2100 best_pos=(1,2099) best_dist=2898
+    - gen=2200 best_pos=(1,2199) best_dist=2798
+    - gen=2300 best_pos=(1,2298) best_dist=2699
+    - gen=2400 best_pos=(1,2298) best_dist=2699
+    - gen=2500 best_pos=(1,2298) best_dist=2699
+    - gen=2600 best_pos=(1,2298) best_dist=2699
+    - gen=2700 best_pos=(1,2298) best_dist=2699
+    - gen=2800 best_pos=(1,2298) best_dist=2699
+    - gen=2900 best_pos=(1,2298) best_dist=2699
+    - gen=3000 best_pos=(1,2298) best_dist=2699
+    - gen=3100 best_pos=(1,2298) best_dist=2699
+    - gen=3200 best_pos=(1,2298) best_dist=2699
+    - gen=3300 best_pos=(1,2298) best_dist=2699
+    - gen=3400 best_pos=(1,2298) best_dist=2699
+    - gen=3500 best_pos=(1,2298) best_dist=2699
+    - gen=3600 best_pos=(1,2298) best_dist=2699
+    - gen=3700 best_pos=(1,2298) best_dist=2699
+    - gen=3800 best_pos=(1,2298) best_dist=2699
+    - gen=3900 best_pos=(1,2298) best_dist=2699
+    - gen=4000 best_pos=(1,2298) best_dist=2699
+    - gen=4100 best_pos=(1,2298) best_dist=2699
+    - gen=4200 best_pos=(1,2298) best_dist=2699
+    - gen=4300 best_pos=(1,2298) best_dist=2699
+    - gen=4400 best_pos=(1,2298) best_dist=2699
+    - gen=4500 best_pos=(1,2298) best_dist=2699
+(W) - No movement in gen=4598
+(W) - Failed to reach the destination (distance=2699)
+   Best attempt found: 2299 movements
+   Saving output to "output4.txt"
 
-[m=> Solving challenge 5
-[m   Reading input from "input5.txt"
-[m   Path finding
-[m    - max_generations=50000 max_pessimism=50
-[m    - gen=100 best_pos=(14,47) best_dist=537
-[m    - gen=200 best_pos=(42,76) best_dist=480
-[m    - gen=300 best_pos=(90,92) best_dist=416
-[m    - gen=400 best_pos=(111,132) best_dist=355
-[m    - gen=500 best_pos=(140,166) best_dist=292
-[m    - gen=600 best_pos=(168,202) best_dist=228
-[m    - gen=700 best_pos=(209,221) best_dist=168
-[m    - gen=800 best_pos=(238,259) best_dist=101
-[m    - gen=900 best_pos=(275,286) best_dist=37
-[m   Path found: 962 movements
-[m   Checking
-[m   Passed: loses 0 lives
-[m   Saving output to "output5.txt"
+=> Solving challenge 5
+   Reading input from "input5.txt"
+   Path finding
+    - max_generations=50000 max_pessimism=50
+    - gen=100 best_pos=(14,47) best_dist=537
+    - gen=200 best_pos=(42,76) best_dist=480
+    - gen=300 best_pos=(90,92) best_dist=416
+    - gen=400 best_pos=(111,132) best_dist=355
+    - gen=500 best_pos=(140,166) best_dist=292
+    - gen=600 best_pos=(168,202) best_dist=228
+    - gen=700 best_pos=(209,221) best_dist=168
+    - gen=800 best_pos=(238,259) best_dist=101
+    - gen=900 best_pos=(275,286) best_dist=37
+   Path found: 962 movements
+   Checking
+   Passed: loses 0 lives
+   Saving output to "output5.txt"
 
