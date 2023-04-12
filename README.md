@@ -17,11 +17,18 @@ with (stable) Rust 1.68.1.
 
 ## Submissions
 
-Level 2: [code][level2-tag] | [run log][level2-log] | [outputs][level2-output]
+- Level 1: [code][level1-tag] | [outputs][level1-output] | --- | 17.8 ms | 2.4 MiB heap peak
+- Level 2: [code][level2-tag] | [outputs][level2-output] | [run log][level2-log] | 17.7 min[^1] | 3.4 GiB heap peak[^1]
+
+The submissions were prepared on a i7-8700K with 32 GiB of RAM.
+
+[^1]: Resources needed for all challenges, running sequentially.
 
 
 [Stone Automata Maze Challenge]: https://sigmageek.com/stone_results/stone-automata-maze-challenge
 [`src/main.rs`]: ./src/main.rs
+[level1-output]: ./submissions/level1
+[level1-tag]: https://github.com/jonasmalacofilho/stonetomaton/releases/tag/submission-level-1-question-2
 [level2-log]: ./submissions/level2/run.log
 [level2-output]: ./submissions/level2
 [level2-tag]: https://github.com/jonasmalacofilho/stonetomaton/releases/tag/submission-level-2
