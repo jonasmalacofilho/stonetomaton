@@ -1,4 +1,4 @@
-/output*.txt*
+/data/output*
 /submissions/archive
 /target
 input4-puzzle.txt

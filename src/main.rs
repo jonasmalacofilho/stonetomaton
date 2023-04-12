@@ -190,8 +190,8 @@ fn challenge_paths(number: u8) -> (PathBuf, PathBuf) {
     } else {
         number.to_string()
     };
-    let input = format!("input{suffix}.txt");
-    let output = format!("output{suffix}.txt");
+    let input = format!("data/input{suffix}.txt");
+    let output = format!("data/output{suffix}.txt");
     (input.into(), output.into())
 }
 
@@ -623,7 +623,7 @@ mod main_tests {
             fn question2() {
                 const GOLDEN_LENGTH: usize = 220;
 
-                let input = fs::read_to_string("input.txt").unwrap();
+                let input = fs::read_to_string("data/input.txt").unwrap();
                 let automaton = parse(&input);
 
                 let path = find_path(automaton.clone(), MAX_GENERATIONS, MAX_PESSIMISM).unwrap();
@@ -637,7 +637,7 @@ mod main_tests {
             fn question2_alt_solver() {
                 const GOLDEN_LENGTH: usize = 220;
 
-                let input = fs::read_to_string("input.txt").unwrap();
+                let input = fs::read_to_string("data/input.txt").unwrap();
                 let automaton = parse(&input);
 
                 let path = find_path_robust(automaton.clone(), MAX_GENERATIONS).unwrap();
@@ -656,7 +656,7 @@ mod main_tests {
             fn challenge1() {
                 const GOLDEN_LENGTH: usize = 6176; // score ==  1000
 
-                let input = fs::read_to_string("input1.txt").unwrap();
+                let input = fs::read_to_string("data/input1.txt").unwrap();
                 let mut automaton = parse(&input);
                 automaton.immutable_endpoints = true;
 
@@ -668,7 +668,7 @@ mod main_tests {
                 validade_path_format(&path);
 
                 path.push('\n');
-                fs::write("output1.txt.test", path).unwrap();
+                fs::write("data/output1.txt.test", path).unwrap();
             }
 
             #[test]
@@ -676,7 +676,7 @@ mod main_tests {
             fn challenge2() {
                 const GOLDEN_LENGTH: usize = 6264; // FIXME: suboptimal
 
-                let input = fs::read_to_string("input2.txt").unwrap();
+                let input = fs::read_to_string("data/input2.txt").unwrap();
                 let mut automaton = parse(&input);
                 automaton.immutable_endpoints = true;
 
@@ -688,7 +688,7 @@ mod main_tests {
                 validade_path_format(&path);
 
                 path.push('\n');
-                fs::write("output2.txt.test", path).unwrap();
+                fs::write("data/output2.txt.test", path).unwrap();
             }
 
             #[test]
@@ -696,7 +696,7 @@ mod main_tests {
             fn challenge3() {
                 const GOLDEN_LENGTH: usize = 6200; // FIXME: suboptimal
 
-                let input = fs::read_to_string("input3.txt").unwrap();
+                let input = fs::read_to_string("data/input3.txt").unwrap();
                 let mut automaton = parse(&input);
                 automaton.immutable_endpoints = true;
 
@@ -708,7 +708,7 @@ mod main_tests {
                 validade_path_format(&path);
 
                 path.push('\n');
-                fs::write("output3.txt.test", path).unwrap();
+                fs::write("data/output3.txt.test", path).unwrap();
             }
         }
     }
